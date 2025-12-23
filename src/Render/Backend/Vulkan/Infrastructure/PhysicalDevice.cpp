@@ -1,0 +1,251 @@
+#include "PhysicalDevice.h"
+#include "Instance.h"
+#include "KHR/Surface.h"
+#include <vector>
+#include <string>
+#include <set>
+#include <sstream>
+#include <algorithm>
+
+namespace PlayGround::Vulkan {
+
+	PhysicalDevice::PhysicalDevice(Context& context)
+        : Infrastructure(context)
+    {
+        Create();
+    }
+
+	void PhysicalDevice::Create()
+    {
+        const auto instance = m_Context.Get<Instance>()->Handle();
+
+        uint32_t deviceCount = 0;
+        vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+
+        if (deviceCount == 0) 
+		{
+			CORE_ERROR("Failed to find GPUs with Vulkan support.")
+			return;
+		}
+
+        std::vector<VkPhysicalDevice> PhysicalDevices(deviceCount);
+        vkEnumeratePhysicalDevices(instance, &deviceCount, PhysicalDevices.data());
+
+		// Iter all physical and select one suitable.
+		for (const auto& physicalDevice : PhysicalDevices)
+		{
+			// All this condition need satisfied.
+			if (IsExtensionMeetDemand(physicalDevice) && IsPropertyMeetDemand(physicalDevice) && IsFeatureMeetDemand(physicalDevice) &&
+				IsQueueMeetDemand(physicalDevice, m_Context.Get<Surface>()->Handle()))
+			{
+				m_Handle = physicalDevice;
+
+				CORE_INFO("Vulkan PhysicalDevice Selected.")
+				return;
+			}
+		}
+
+		CORE_ERROR("Failed to find GPU Physical Device that satisfied our needs.")
+    }
+
+	bool PhysicalDevice::IsExtensionMeetDemand(const VkPhysicalDevice& device)
+	{
+		uint32_t extensionCount;
+		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+		std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+		vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+		auto requiredList = GetExtensionRequirements();
+		std::set<std::string> requiredExtensions(requiredList.begin(), requiredList.end());
+
+		for (const auto& extension : availableExtensions)
+		{
+			requiredExtensions.erase(extension.extensionName);
+		}
+
+		if (requiredExtensions.empty())
+		{
+			return true;
+		}
+		else
+		{
+			// Get Physical Device name.
+			VkPhysicalDeviceProperties deviceProperties;
+			vkGetPhysicalDeviceProperties(device, &deviceProperties);
+
+			for (auto& set : requiredExtensions)
+			{
+				std::stringstream ss;
+				ss << "Device Extension Required: [ " << set << " ], Which is not satisfied with device: " << deviceProperties.deviceName;
+
+				CORE_ERROR(ss.str())
+			}
+
+			return false;
+		}
+	}
+
+	bool PhysicalDevice::IsPropertyMeetDemand(const VkPhysicalDevice& device)
+	{
+		VkPhysicalDeviceProperties2                   prop2 {};
+		prop2.sType                                 = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+		prop2.pNext                                 = nullptr;
+
+		vkGetPhysicalDeviceProperties2(device, &prop2);
+
+		m_Properties = prop2.properties;
+
+		return true;
+	}
+
+	bool PhysicalDevice::IsFeatureMeetDemand(const VkPhysicalDevice& device)
+	{
+		VkPhysicalDeviceFeatures2                             deviceFeatures {};
+		deviceFeatures.sType                                = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+		deviceFeatures.pNext                                = nullptr;
+
+		vkGetPhysicalDeviceFeatures2(device, &deviceFeatures);
+
+		return true;
+	}
+
+	bool PhysicalDevice::IsQueueMeetDemand(const VkPhysicalDevice& device, const VkSurfaceKHR& surface)
+	{
+		uint32_t queueFamilyCount = 0;
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+		for (uint32_t i = 0; i < queueFamilyCount; i++) 
+		{
+			const auto& queueFamily = queueFamilies[i];
+
+			if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+			{
+				m_QueueFamilies.graphic = i;
+
+				VkBool32 presentSupport = false;
+				vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+
+				if (presentSupport) 
+				{
+					m_QueueFamilies.present = i;
+				}
+			}
+			else
+			{
+				// Get compute queue identify.
+				if (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) 
+				{
+					m_QueueFamilies.compute = i;
+				}
+
+				// Get transfer queue identify.
+				if (queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT) 
+				{
+					m_QueueFamilies.transfer = i;
+				}
+			}
+
+			if (m_QueueFamilies.isComplete()) return true;
+		}
+
+		return false;
+	}
+
+	SwapChainpProperty PhysicalDevice::QuerySwapChainSupport(GLFWwindow* window)
+	{
+		auto surface = m_Context.Get<Surface>()->Handle();
+
+		SwapChainpProperty property{};
+		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_Handle, surface, &property.capabilities);
+
+		if (property.capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+		{
+			property.surfaceSize = property.capabilities.currentExtent;
+		}
+		else
+		{
+			int width, height;
+			glfwGetFramebufferSize(window, &width, &height);
+
+			VkExtent2D actualExtent =
+			{
+				static_cast<uint32_t>(width),
+				static_cast<uint32_t>(height)
+			};
+
+			actualExtent.width = std::clamp(actualExtent.width, property.capabilities.minImageExtent.width, property.capabilities.maxImageExtent.width);
+			actualExtent.height = std::clamp(actualExtent.height, property.capabilities.minImageExtent.height, property.capabilities.maxImageExtent.height);
+
+			property.surfaceSize = actualExtent;
+		}
+
+		uint32_t formatCount;
+		vkGetPhysicalDeviceSurfaceFormatsKHR(m_Handle, surface, &formatCount, nullptr);
+
+		if (formatCount != 0)
+		{
+			property.formats.resize(formatCount);
+			vkGetPhysicalDeviceSurfaceFormatsKHR(m_Handle, surface, &formatCount, property.formats.data());
+
+			property.format = property.formats[0];
+
+			for (const auto& availableFormat : property.formats)
+			{
+				if (availableFormat.format == VK_FORMAT_A2B10G10R10_UNORM_PACK32 &&
+					availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+				{
+					property.format = availableFormat;
+					break;
+				}
+			}
+		}
+
+		uint32_t presentModeCount;
+		vkGetPhysicalDeviceSurfacePresentModesKHR(m_Handle, surface, &presentModeCount, nullptr);
+
+		if (presentModeCount != 0)
+		{
+			property.presentModes.resize(presentModeCount);
+			vkGetPhysicalDeviceSurfacePresentModesKHR(m_Handle, surface, &presentModeCount, property.presentModes.data());
+
+			property.presentMode = property.presentModes[0];
+
+			for (const auto& availablePresentMode : property.presentModes)
+			{
+				if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+				{
+					property.presentMode = availablePresentMode;
+					break;
+				}
+			}
+		}
+
+		return property;
+	}
+
+	const std::vector<const char*>& PhysicalDevice::GetExtensionRequirements()
+	{
+		static std::vector<const char*> m_ExtensionProperties;
+
+		if (m_ExtensionProperties.empty())
+		{
+			m_ExtensionProperties.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+			m_ExtensionProperties.push_back(VK_KHR_MAINTENANCE_1_EXTENSION_NAME);
+			m_ExtensionProperties.push_back(VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME);
+			m_ExtensionProperties.push_back(VK_KHR_SHADER_CLOCK_EXTENSION_NAME);
+			m_ExtensionProperties.push_back(VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME);
+			m_ExtensionProperties.push_back(VK_KHR_SPIRV_1_4_EXTENSION_NAME);
+			m_ExtensionProperties.push_back(VK_EXT_MESH_SHADER_EXTENSION_NAME);
+			m_ExtensionProperties.push_back(VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME);
+			m_ExtensionProperties.push_back(VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME);
+			m_ExtensionProperties.push_back(VK_EXT_NESTED_COMMAND_BUFFER_EXTENSION_NAME);
+			m_ExtensionProperties.push_back(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
+		}
+
+		return m_ExtensionProperties;
+	}
+}

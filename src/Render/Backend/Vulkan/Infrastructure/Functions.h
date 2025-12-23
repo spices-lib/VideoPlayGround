@@ -1,0 +1,93 @@
+#pragma once
+#include "Core/Core.h"
+#include "Infrastructure.h"
+
+namespace PlayGround::Vulkan {
+
+#define VK_FUNCTION_POINTER(function)          \
+	PFN_##function function;
+
+#define EXPLAIN_VK_FUNCTION_POINTER(function)  \
+	function = reinterpret_cast<PFN_##function>(vkGetInstanceProcAddr(instance, #function));
+
+	class Functions : public Infrastructure
+	{
+	public:
+
+		static constexpr EInfrastructure Type = EInfrastructure::Functions;
+
+	public:
+
+		Functions(Context& context);
+		~Functions() override = default;
+
+		void Init(VkInstance instance);
+
+		/** 
+		* @brief Debug Functions.
+		*/
+		VK_FUNCTION_POINTER(vkCreateDebugUtilsMessengerEXT                  )
+		VK_FUNCTION_POINTER(vkDestroyDebugUtilsMessengerEXT                 )
+
+		/**
+		* @brief DebugUtils Function. 
+		*/
+		VK_FUNCTION_POINTER(vkCmdBeginDebugUtilsLabelEXT                    )
+		VK_FUNCTION_POINTER(vkCmdEndDebugUtilsLabelEXT                      )
+		VK_FUNCTION_POINTER(vkCmdInsertDebugUtilsLabelEXT                   )
+														                    
+		VK_FUNCTION_POINTER(vkQueueBeginDebugUtilsLabelEXT                  )
+		VK_FUNCTION_POINTER(vkQueueEndDebugUtilsLabelEXT                    )
+		VK_FUNCTION_POINTER(vkQueueInsertDebugUtilsLabelEXT                 )
+														                    
+		VK_FUNCTION_POINTER(vkSetDebugUtilsObjectNameEXT                    )
+		VK_FUNCTION_POINTER(vkSetDebugUtilsObjectTagEXT                     )
+																            
+		/**														            
+		* @brief RayTracing Function.					            
+		*/														            
+		VK_FUNCTION_POINTER(vkGetRayTracingShaderGroupHandlesKHR            )
+		VK_FUNCTION_POINTER(vkCmdTraceRaysKHR                               )
+		VK_FUNCTION_POINTER(vkCreateRayTracingPipelinesKHR                  )
+		VK_FUNCTION_POINTER(vkCreateAccelerationStructureKHR                )
+		VK_FUNCTION_POINTER(vkDestroyAccelerationStructureKHR               )
+		VK_FUNCTION_POINTER(vkCmdBuildAccelerationStructuresKHR             )
+		VK_FUNCTION_POINTER(vkCopyAccelerationStructureKHR                  )
+		VK_FUNCTION_POINTER(vkGetAccelerationStructureDeviceAddressKHR      )
+		VK_FUNCTION_POINTER(vkCmdWriteAccelerationStructuresPropertiesKHR   )
+		VK_FUNCTION_POINTER(vkGetAccelerationStructureBuildSizesKHR         )
+		VK_FUNCTION_POINTER(vkCmdCopyAccelerationStructureKHR               )
+
+		/**
+		* @brief Mesh Shader Function.
+		*/
+		VK_FUNCTION_POINTER(vkCmdDrawMeshTasksEXT                           )
+
+		/**
+		* @brief DGC Function.
+		*/
+		VK_FUNCTION_POINTER(vkCreateIndirectCommandsLayoutNV                )
+		VK_FUNCTION_POINTER(vkDestroyIndirectCommandsLayoutNV               )
+		VK_FUNCTION_POINTER(vkCmdExecuteGeneratedCommandsNV                 )
+		VK_FUNCTION_POINTER(vkGetGeneratedCommandsMemoryRequirementsNV      )
+		VK_FUNCTION_POINTER(vkCmdPreprocessGeneratedCommandsNV              )
+
+		/**
+		* @brief Aftermath Function.
+		*/
+		VK_FUNCTION_POINTER(vkCmdSetCheckpointNV                            )
+
+		/**
+		* @brief Tracy Vulkan Context Collect Function
+		*/
+		VK_FUNCTION_POINTER(vkGetPhysicalDeviceCalibrateableTimeDomainsEXT  )
+		VK_FUNCTION_POINTER(vkGetCalibratedTimestampsEXT                    )
+		VK_FUNCTION_POINTER(vkResetQueryPool                                )
+
+		/**
+		* @brief Copy data to image from host directly.
+		*/
+		VK_FUNCTION_POINTER(vkCopyMemoryToImageEXT                          )
+		VK_FUNCTION_POINTER(vkCopyImageToMemoryEXT                          )
+	};
+}
