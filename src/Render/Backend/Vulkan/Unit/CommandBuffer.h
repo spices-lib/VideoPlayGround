@@ -18,6 +18,10 @@ namespace PlayGround::Vulkan::Unit {
 
 		void CreateCommandBuffer(VkDevice device, const VkCommandBufferAllocateInfo& info);
 
+		void Begin(const VkCommandBufferBeginInfo& info);
+
+		void End();
+
 	private:
 
 		VkDevice m_Device = VK_NULL_HANDLE;

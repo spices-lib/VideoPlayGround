@@ -10,12 +10,12 @@ namespace PlayGround::Vulkan {
 
     void ThreadQueue::Add(VkQueue handle)
     {
-        auto q = Unit::Queue();
-        q.SetHandle(handle);
+        auto queue = CreateSP<Unit::Queue>();
+        queue->SetHandle(handle);
 
-        DEBUGUTILS_SETOBJECTNAME(q, "ThreadQueue")
+        m_Queues.emplace(queue);
 
-        m_Queues.emplace(std::move(q));
+        DEBUGUTILS_SETOBJECTNAME(*queue, "ThreadQueue")
     }
 
 }

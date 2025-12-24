@@ -13,18 +13,17 @@ namespace PlayGround {
 
         const auto world = World::Instance();
 
-        if (world->TestFlag(WorldMarkBit::DynamicScriptTick))
+        if (!world->TestFlag(WorldMarkBit::DynamicScriptTick)) return;
+
+        const auto& scenes = world->GetScenes();
+
+        for (const auto& scene : scenes | std::views::values)
         {
-            const auto& scenes = world->GetScenes();
+            scene->ViewComponent<ScriptComponent>([](uint32_t e, const ScriptComponent& comp) {
 
-            for (const auto& scene : scenes | std::views::values)
-            {
-                scene->ViewComponent<ScriptComponent>([](uint32_t e, const ScriptComponent& comp) {
-
-                    comp.OnTick();
-                    return true;
-                });
-            }
+                comp.OnTick();
+                return true;
+            });
         }
     }
 
@@ -32,18 +31,17 @@ namespace PlayGround {
     {
         const auto world = World::Instance();
 
-        if (world->TestFlag(WorldMarkBit::DynamicScriptEvent))
+        if (!world->TestFlag(WorldMarkBit::DynamicScriptEvent)) return;
+
+        const auto& scenes = World::Instance()->GetScenes();
+
+        for (const auto& scene : scenes | std::views::values)
         {
-            const auto& scenes = World::Instance()->GetScenes();
+            scene->ViewComponent<ScriptComponent>([&](uint32_t e, const ScriptComponent& comp) {
 
-            for (const auto& scene : scenes | std::views::values)
-            {
-                scene->ViewComponent<ScriptComponent>([&](uint32_t e, const ScriptComponent& comp) {
-
-                    comp.OnEvent(event);
-                    return true;
-                });
-            }
+                comp.OnEvent(event);
+                return true;
+            });
         }
     }
 }

@@ -2,6 +2,7 @@
 #include "Core/Core.h"
 #include "Infrastructure.h"
 #include "Render/Backend/Vulkan/Unit/Semaphore.h"
+#include <vector>
 
 namespace PlayGround::Vulkan {
 
@@ -13,19 +14,19 @@ namespace PlayGround::Vulkan {
 	{
 	public:
 
-		Semaphore(Context& context, EInfrastructure e);
+		Semaphore(Context& context, EInfrastructure e, uint32_t count = 1);
 
 		~Semaphore() override = default;
 
-		const VkSemaphore& Handle() { return m_Semaphore.GetHandle(); }
+		const VkSemaphore& Handle(uint32_t index = 0) { return m_Semaphores[index]->GetHandle(); }
 
 	private:
 
-		void Create();
+		void Create(uint32_t count);
 
 	private:
 
-		Unit::Semaphore m_Semaphore;
+		std::vector<SP<Unit::Semaphore>> m_Semaphores;
 
 	};
 

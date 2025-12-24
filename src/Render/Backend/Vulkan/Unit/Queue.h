@@ -17,8 +17,7 @@ namespace PlayGround::Vulkan::Unit {
 
 		~Queue() override = default;
 
-		void Submit(class CommandBuffer commandBuffer) const;
-		void Submit(const std::vector<CommandBuffer>& commandBuffers) const;
+		void Submit(const VkSubmitInfo& info, VkFence fence = VK_NULL_HANDLE) const;
 
 		void Wait() const;
 	};

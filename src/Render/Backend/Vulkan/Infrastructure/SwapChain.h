@@ -14,20 +14,27 @@ namespace PlayGround::Vulkan {
 	{
 	public:
 
-		SwapChain(Context& context, EInfrastructure e, GLFWwindow* window);
+		SwapChain(Context& context, EInfrastructure e, GLFWwindow* window, uint32_t count);
 
 		~SwapChain() override = default;
 
-		const VkSwapchainKHR& Handle() { return m_SwapChain.GetHandle(); }
+		const VkSwapchainKHR& Handle() { return m_SwapChain->GetHandle(); }
+
+		bool GetNextImage(VkSemaphore semaphore, uint32_t& imageIndex);
+
+		bool Present(VkPresentInfoKHR& info);
+
+		void ReCreate(GLFWwindow* window, uint32_t count);
 
 	private:
 
-		void Create(GLFWwindow* window);
+		void Destroy();
+		void Create(GLFWwindow* window, uint32_t count);
 
 	private:
 
-		Unit::SwapChain m_SwapChain;
-		std::array<SP<Image>, MaxFrameInFlight> m_SwapChainImage;
+		SP<Unit::SwapChain> m_SwapChain;
+		std::vector<SP<Image>> m_SwapChainImage;
 
 	};
 

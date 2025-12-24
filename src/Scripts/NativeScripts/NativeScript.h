@@ -9,7 +9,6 @@ namespace PlayGround {
     public:
 
         NativeScript() = default;
-        NativeScript(const std::filesystem::path& path) : ScriptInterface(path) {};
         ~NativeScript() override = default;
     };
 }

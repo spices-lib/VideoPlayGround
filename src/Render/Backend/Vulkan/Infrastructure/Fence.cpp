@@ -1,24 +1,47 @@
 #include "Fence.h"
 #include "Device.h"
 #include "DebugUtilsObject.h"
+#include <algorithm>
 
 namespace PlayGround::Vulkan {
 
-    Fence::Fence(Context& context, EInfrastructure e)
+    Fence::Fence(Context& context, EInfrastructure e, uint32_t count)
         : Infrastructure(context, e)
     {
-        Create();
+        Create(count);
     }
 
-    void Fence::Create()
+    void Fence::Create(uint32_t count)
     {
         VkFenceCreateInfo fenceInfo {};
 		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-        m_Fence.CreateFence(GetContext().Get<IDevice>()->Handle(), fenceInfo);
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            auto fence = CreateSP<Unit::Fence>();
+            fence->CreateFence(GetContext().Get<IDevice>()->Handle(), fenceInfo);
+ 
+            m_Fences.emplace_back(fence);
 
-        DEBUGUTILS_SETOBJECTNAME(m_Fence, "Fence")
+            DEBUGUTILS_SETOBJECTNAME(*fence, "Fence")
+        }
+    }
+
+    void Fence::Wait(uint32_t index)
+    {
+        auto& fence = m_Fences[index];
+
+        fence->WaitFence();
+        fence->ResetFence();
+    }
+
+    void Fence::WaitAll()
+    {
+        std::for_each(m_Fences.begin(), m_Fences.end(), [](const auto& fence) {
+            fence->WaitFence();
+            fence->ResetFence();
+        });
     }
 
 }

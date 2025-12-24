@@ -14,12 +14,12 @@ namespace PlayGround {
         ScriptInterface(const std::filesystem::path& path) : m_ScriptPath(path) {};
         ~ScriptInterface() override = default;
 
-        virtual void OnConstruct() = 0;
-        virtual void OnAttached() = 0;
-        virtual void OnTick() = 0;
-        virtual void OnDestroy() = 0;
-        virtual void OnDetached() = 0;
-        virtual void OnEvent(Event& e) = 0;
+        virtual void OnConstruct() {}
+        virtual void OnAttached() {}
+        virtual void OnTick() {}
+        virtual void OnDestroy() {}
+        virtual void OnDetached() {}
+        virtual void OnEvent(Event& e) {}
 
         std::string GetFileString() const { return m_ScriptPath.generic_string(); }
 

@@ -1,18 +1,25 @@
 #include "SwapChain.h"
 #include "Surface.h"
 #include "Render/Backend/Vulkan/Infrastructure/PhysicalDevice.h"
+#include "Render/Backend/Vulkan/Infrastructure/Queue.h"
 #include "Render/Backend/Vulkan/Infrastructure/DebugUtilsObject.h"
 #include <GLFW/glfw3.h>
 
 namespace PlayGround::Vulkan {
 
-    SwapChain::SwapChain(Context& context, EInfrastructure e, GLFWwindow* window)
+    SwapChain::SwapChain(Context& context, EInfrastructure e, GLFWwindow* window, uint32_t count)
         : Infrastructure(context, e)
     {
-        Create(window);
+        Create(window, count);
     }
 
-    void SwapChain::Create(GLFWwindow* window)
+	void SwapChain::Destroy()
+	{
+		m_SwapChainImage.clear();
+		m_SwapChain.reset();
+	}
+
+	void SwapChain::Create(GLFWwindow* window, uint32_t count)
     {
 		auto physicalDevice = GetContext().Get<IPhysicalDevice>();
 		auto property = physicalDevice->QuerySwapChainSupport(window);
@@ -20,7 +27,7 @@ namespace PlayGround::Vulkan {
         VkSwapchainCreateInfoKHR                 createInfo{};
 		createInfo.sType                       = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 		createInfo.surface                     = GetContext().Get<ISurface>()->Handle();
-		createInfo.minImageCount               = MaxFrameInFlight;
+		createInfo.minImageCount               = count;
 		createInfo.imageFormat                 = property.format.format;
 		createInfo.imageColorSpace             = property.format.colorSpace;
 		createInfo.imageExtent                 = property.surfaceSize;
@@ -52,17 +59,20 @@ namespace PlayGround::Vulkan {
 		createInfo.clipped                     = VK_TRUE;
 		createInfo.oldSwapchain                = VK_NULL_HANDLE;
 
-		m_SwapChain.CreateSwapchain(GetContext().Get<IDevice>()->Handle(), createInfo);
-		DEBUGUTILS_SETOBJECTNAME(m_SwapChain, "SpicesEngineSwapChainKHR")
+		m_SwapChain = CreateSP<Unit::SwapChain>();
+		m_SwapChain->CreateSwapchain(GetContext().Get<IDevice>()->Handle(), createInfo);
+		DEBUGUTILS_SETOBJECTNAME(*m_SwapChain, "SpicesEngineSwapChainKHR")
 
-		uint32_t imageCount = MaxFrameInFlight;
-		auto images = m_SwapChain.GetSwapchainImages(imageCount);
+		uint32_t imageCount = count;
+		auto images = m_SwapChain->GetSwapchainImages(imageCount);
 
-		for (size_t i = 0; i < MaxFrameInFlight; i++)
+		for (size_t i = 0; i < count; i++)
 		{
 			auto swapChainImage = CreateSP<Image>(GetContext());
 			swapChainImage->SetImage(images[i]);
 
+			m_SwapChainImage.emplace_back(swapChainImage);
+			
 			{
 				VkImageViewCreateInfo info{};
 				info.sType    = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -112,9 +122,46 @@ namespace PlayGround::Vulkan {
 			}
 
 			swapChainImage->SetName("SwapChain");
-
-			m_SwapChainImage[i] = swapChainImage;
 		}
     }
 
+	bool SwapChain::GetNextImage(VkSemaphore semaphore, uint32_t& imageIndex)
+	{
+		const auto result = m_SwapChain->GetNextImage(semaphore, imageIndex);
+
+		if (result == VK_ERROR_OUT_OF_DATE_KHR)
+		{
+			return false;
+		}
+		else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+		{
+			CORE_ERROR("Failed to Acquire SwapChain Image.")
+		}
+
+		return true;
+	}
+
+	bool SwapChain::Present(VkPresentInfoKHR& info)
+	{
+		info.pSwapchains = &Handle();
+
+		const auto result = vkQueuePresentKHR(GetContext().Get<IPresentQueue>()->Handle(), &info);
+
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+		{
+			return false;
+		}
+		else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+		{
+			CORE_ERROR("Failed to Present SwapChain Image.")
+		}
+
+		return true;
+	}
+
+	void SwapChain::ReCreate(GLFWwindow* window, uint32_t count)
+	{
+		Destroy();
+		Create(window, count);
+	}
 }

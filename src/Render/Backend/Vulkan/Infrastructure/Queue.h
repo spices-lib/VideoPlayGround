@@ -22,6 +22,10 @@ namespace PlayGround::Vulkan {
 
 		const VkQueue& Handle()  { return m_Queue.GetHandle(); }
 
+		void Submit(const VkSubmitInfo& info, VkFence fence = VK_NULL_HANDLE);
+
+		void Wait();
+
 	private:
 
 		Unit::Queue m_Queue;

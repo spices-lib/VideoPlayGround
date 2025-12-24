@@ -22,11 +22,20 @@ namespace PlayGround::Vulkan {
         {
             auto commandBuffer = CreateSP<Unit::CommandBuffer>();
             commandBuffer->CreateCommandBuffer(GetContext().Get<IDevice>()->Handle(), allocInfo);
-            
+
             m_CommandBuffers.emplace_back(commandBuffer);
 
             DEBUGUTILS_SETOBJECTNAME(*commandBuffer, "CommandBuffer")
         }
     }
 
+    void CommandBuffer::Begin(const VkCommandBufferBeginInfo& info, uint32_t index)
+    {
+        m_CommandBuffers[index]->Begin(info);
+    }
+
+    void CommandBuffer::End(uint32_t index)
+    {
+        m_CommandBuffers[index]->End();
+    }
 }

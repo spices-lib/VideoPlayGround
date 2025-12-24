@@ -1,0 +1,17 @@
+﻿/.vs
+/.idea
+/bin-int
+/bin
+
+*.user
+*.sln
+*.vcxproj
+*.csproj
+*.vcxproj.filters
+*package-lock.json
+
+vendor/GLFW/bin-int
+vendor/GLFW/bin
+
+vendor/imgui/bin-int
+vendor/imgui/bin

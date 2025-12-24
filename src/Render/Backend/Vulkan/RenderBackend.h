@@ -17,14 +17,22 @@ namespace PlayGround::Vulkan {
 
         ~RenderBackend() override;
 
-        void BeginFrame() override;
+        void BeginFrame(class Scene* scene) override;
 
-        void EndFrame() override;
+        void EndFrame(class Scene* scene) override;
 
-        void RenderFrame() override;
+        void RenderFrame(class Scene* scene) override;
 
     private:
 
+        void RecreateSwapChain() override;
+
+    private:
+
+        class Context& GetContext();
+
         SP<class Context> m_Context;
+
+        Window* m_Window;
     };
 }

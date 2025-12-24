@@ -26,4 +26,9 @@ namespace PlayGround::Vulkan::Unit {
 
 		return images;
 	}
+
+	VkResult SwapChain::GetNextImage(VkSemaphore semaphore, uint32_t& imageIndex)
+	{
+		return vkAcquireNextImageKHR(m_Device, m_Handle, UINT64_MAX, semaphore, VK_NULL_HANDLE, &imageIndex);
+	}
 }

@@ -18,6 +18,10 @@ namespace PlayGround::Vulkan::Unit {
 
 		void CreateFence(VkDevice device, const VkFenceCreateInfo& info);
 
+		void WaitFence() const;
+
+		void ResetFence() const;
+
 	private:
 
 		VkDevice m_Device = VK_NULL_HANDLE;

@@ -1,5 +1,6 @@
 #include "RHISystem.h"
 #include "Render/Frontend/RenderFrontend.h"
+#include "World/World/World.h"
 
 namespace PlayGround {
 
@@ -15,9 +16,13 @@ namespace PlayGround {
 
     void RHISystem::Tick()
     {
-        m_RenderFrontend->BeginFrame();
-        m_RenderFrontend->RenderFrame();
-        m_RenderFrontend->EndFrame();
+        auto scene = World::Instance()->GetScenes().at("main_level").get();
+
+        m_RenderFrontend->BeginFrame(scene);
+
+        m_RenderFrontend->RenderFrame(scene);
+
+        m_RenderFrontend->EndFrame(scene);
     }
 
 

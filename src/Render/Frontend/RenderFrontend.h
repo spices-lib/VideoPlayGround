@@ -14,13 +14,15 @@ namespace PlayGround {
 
         ~RenderFrontend() override = default;
 
-        virtual void BeginFrame() = 0;
-        virtual void EndFrame() = 0;
-        virtual void RenderFrame() = 0;
+        virtual void BeginFrame(class Scene* scene) = 0;
+        virtual void EndFrame(class Scene* scene) = 0;
+        virtual void RenderFrame(class Scene* scene) = 0;
 
     protected:
 
         RenderFrontend(){}
+
+        virtual  void RecreateSwapChain();
 
     protected:
 

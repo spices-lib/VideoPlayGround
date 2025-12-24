@@ -1,11 +1,12 @@
 #pragma once
 #include "Core/Core.h"
+#include "Render/Frontend/Utils.h"
 #include <vulkan/vulkan.h>
 #include <sstream>
 
 namespace PlayGround::Vulkan {
 
-	constexpr uint32_t MaxFrameInFlight = 2;
+	constexpr uint32_t MaxFrameInFlight = PlayGround::MaxFrameInFlight;
 
 	constexpr uint32_t NThreadQueue = 4;
 

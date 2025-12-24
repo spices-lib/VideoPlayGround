@@ -13,9 +13,15 @@ namespace PlayGround::Vulkan {
 	{
 	public:
 
-		CommandBuffer(Context& context, EInfrastructure e, VkCommandPool commandPool, VkCommandBufferLevel level, uint32_t count);
+		CommandBuffer(Context& context, EInfrastructure e, VkCommandPool commandPool, VkCommandBufferLevel level, uint32_t count = 1);
 
 		~CommandBuffer() override = default;
+
+		const VkCommandBuffer& Handle(uint32_t index = 0) { return m_CommandBuffers[index]->GetHandle(); }
+
+		void Begin(const VkCommandBufferBeginInfo& info, uint32_t index = 0);
+
+		void End(uint32_t index = 0);
 
 	private:
 

@@ -21,7 +21,7 @@ namespace PlayGround::Vulkan {
 
 	private:
 
-		std::queue<Unit::Queue> m_Queues;
+		std::queue<SP<Unit::Queue>> m_Queues;
 
 	};
 	

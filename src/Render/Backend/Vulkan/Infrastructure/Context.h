@@ -84,7 +84,7 @@ namespace PlayGround::Vulkan {
             CORE_ERROR("Vulkan Infrastructure already registered.")
         }
 
-        m_Infrastructures[position] = CreateSP<I::T>(*this, I::E, std::forward<Args>(args)...);
+        m_Infrastructures[position] = CreateSP<typename I::T>(*this, I::E, std::forward<Args>(args)...);
     }
 
     template <typename I>

@@ -26,6 +26,8 @@ namespace PlayGround {
 
         Entity Query(uint32_t id);
 
+        uint32_t GetRoot() const { return m_Root; }
+
         template<typename T, typename F>
         void ViewComponent(F&& fn) const;
 

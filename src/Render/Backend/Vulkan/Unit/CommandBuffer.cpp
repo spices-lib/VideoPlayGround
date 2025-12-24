@@ -18,4 +18,14 @@ namespace PlayGround::Vulkan::Unit {
 
 		VK_CHECK(vkAllocateCommandBuffers(m_Device, &info, &m_Handle))
 	}
+
+	void CommandBuffer::Begin(const VkCommandBufferBeginInfo& info)
+	{
+		VK_CHECK(vkBeginCommandBuffer(m_Handle, &info))
+	}
+
+	void CommandBuffer::End()
+	{
+		VK_CHECK(vkEndCommandBuffer(m_Handle))
+	}
 }

@@ -3,6 +3,7 @@
 #include "World/Entity/Entity.h"
 #include "World/Component/TransformComponent.h"
 #include "World/Component/ScriptComponent.h"
+#include "Scripts/NativeScripts/EngineClock.h"
 
 namespace PlayGround::Editor {
 
@@ -23,15 +24,8 @@ namespace PlayGround::Editor {
     {
         const auto scene = CreateScene("main_level");
 
-        {
-            auto entity = scene->Create("cube");
-            entity.AddComponent<TransformComponent>();
-            auto& comp = entity.AddComponent<ScriptComponent>();
-        }
+        auto& scriptComponent = scene->GetComponent<ScriptComponent>(scene->GetRoot());
 
-        {
-            auto entity = scene->Create("plane");
-            entity.AddComponent<TransformComponent>();
-        }
+        scriptComponent.AddScript(CreateSP<EngineClock>(scene));
     }
 }

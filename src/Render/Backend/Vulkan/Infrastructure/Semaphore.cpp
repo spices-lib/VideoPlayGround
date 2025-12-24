@@ -4,20 +4,26 @@
 
 namespace PlayGround::Vulkan {
 
-    Semaphore::Semaphore(Context& context, EInfrastructure e)
+    Semaphore::Semaphore(Context& context, EInfrastructure e, uint32_t count)
         : Infrastructure(context, e)
     {
-        Create();
+        Create(count);
     }
 
-    void Semaphore::Create()
+    void Semaphore::Create(uint32_t count)
     {
         VkSemaphoreCreateInfo semaphoreInfo {};
 		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-        m_Semaphore.CreateSemaphore(GetContext().Get<IDevice>()->Handle(), semaphoreInfo);
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            auto semphore = CreateSP<Unit::Semaphore>();
+            semphore->CreateSemaphore(GetContext().Get<IDevice>()->Handle(), semaphoreInfo);
 
-        DEBUGUTILS_SETOBJECTNAME(m_Semaphore, "Semaphore")
+            m_Semaphores.emplace_back(semphore);
+
+            DEBUGUTILS_SETOBJECTNAME(*semphore, "Semaphore")
+        }
     }
 
 }

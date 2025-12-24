@@ -17,11 +17,6 @@ namespace PlayGround::Vulkan {
 
         const EInfrastructure& GetInfrastructure() const { return m_EInfrastructure; }
 
-    protected:
-
-        template<typename T>
-        static void Destroy(T*);
-
     private:
 
         EInfrastructure m_EInfrastructure;
