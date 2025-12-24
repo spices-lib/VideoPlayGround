@@ -2,6 +2,8 @@
 #include "Core/Core.h"
 #include "Unit.h"
 
+struct GLFWwindow;
+
 namespace PlayGround::Vulkan::Unit {
 
 	class Surface : public Unit<VkSurfaceKHR, VkObjectType::VK_OBJECT_TYPE_SURFACE_KHR>
@@ -12,8 +14,14 @@ namespace PlayGround::Vulkan::Unit {
 
 	public:
 
-		Surface(Handle handle) : Unit(handle) {}
+		Surface() : Unit() {}
 
-		~Surface() override = default;
+		~Surface() override;
+
+		void CreateSurface(VkInstance instance, GLFWwindow* window);
+
+	private:
+
+		VkInstance m_Instance;
 	};
 }

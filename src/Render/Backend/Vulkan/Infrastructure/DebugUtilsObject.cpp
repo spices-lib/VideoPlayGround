@@ -4,8 +4,8 @@
 
 namespace PlayGround::Vulkan {
 
-	DebugUtilsObject::DebugUtilsObject(Context& context)
-        : Infrastructure(context)
+	DebugUtilsObject::DebugUtilsObject(Context& context, EInfrastructure e)
+        : Infrastructure(context, e)
     {}
 
 	void DebugUtilsObject::BeginLabel(VkCommandBuffer cmdBuffer, const std::string& caption, glm::vec4 color)
@@ -16,12 +16,12 @@ namespace PlayGround::Vulkan {
 
 		memcpy(labelInfo.color, &color[0], sizeof(float) * 4);
 
-		m_Context.Get<Functions>()->vkCmdBeginDebugUtilsLabelEXT(cmdBuffer, &labelInfo);
+		GetContext().Get<IFunctions>()->vkCmdBeginDebugUtilsLabelEXT(cmdBuffer, &labelInfo);
 	}
 
 	void DebugUtilsObject::EndLabel(VkCommandBuffer cmdBuffer)
 	{
-		m_Context.Get<Functions>()->vkCmdEndDebugUtilsLabelEXT(cmdBuffer);
+		GetContext().Get<IFunctions>()->vkCmdEndDebugUtilsLabelEXT(cmdBuffer);
 	}
 
 	void DebugUtilsObject::InsertLabel(VkCommandBuffer cmdBuffer, const std::string& caption, glm::vec4 color)
@@ -32,7 +32,7 @@ namespace PlayGround::Vulkan {
 
 		memcpy(labelInfo.color, &color[0], sizeof(float) * 4);
 
-		m_Context.Get<Functions>()->vkCmdInsertDebugUtilsLabelEXT(cmdBuffer, &labelInfo);
+		GetContext().Get<IFunctions>()->vkCmdInsertDebugUtilsLabelEXT(cmdBuffer, &labelInfo);
 	}
 
 	void DebugUtilsObject::BeginQueueLabel(VkQueue queue, const std::string& caption, glm::vec4 color)
@@ -43,12 +43,12 @@ namespace PlayGround::Vulkan {
 
 		memcpy(labelInfo.color, &color[0], sizeof(float) * 4);
 
-		m_Context.Get<Functions>()->vkQueueBeginDebugUtilsLabelEXT(queue, &labelInfo);
+		GetContext().Get<IFunctions>()->vkQueueBeginDebugUtilsLabelEXT(queue, &labelInfo);
 	}
 
 	void DebugUtilsObject::EndQueueLabel(VkQueue queue)
 	{
-		m_Context.Get<Functions>()->vkQueueEndDebugUtilsLabelEXT(queue);
+		GetContext().Get<IFunctions>()->vkQueueEndDebugUtilsLabelEXT(queue);
 	}
 
 	void DebugUtilsObject::InsertQueueLabel(VkQueue queue, const std::string& caption, glm::vec4 color)
@@ -59,18 +59,7 @@ namespace PlayGround::Vulkan {
 
 		memcpy(labelInfo.color, &color[0], sizeof(float) * 4);
 
-		m_Context.Get<Functions>()->vkQueueInsertDebugUtilsLabelEXT(queue, &labelInfo);
-	}
-
-	void DebugUtilsObject::SetObjectName(VkObjectType type, uint64_t handle, const std::string& caption)
-	{
-		VkDebugUtilsObjectNameInfoEXT       name_info{};
-		name_info.sType                   = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
-		name_info.objectType              = type;
-		name_info.objectHandle            = handle;
-		name_info.pObjectName             = caption.c_str();
-
-		VK_CHECK(m_Context.Get<Functions>()->vkSetDebugUtilsObjectNameEXT(m_Context.Get<Device>()->Handle(), &name_info))
+		GetContext().Get<IFunctions>()->vkQueueInsertDebugUtilsLabelEXT(queue, &labelInfo);
 	}
 
 	void DebugUtilsObject::SetObjectTag(VkObjectType type, uint64_t handle, const std::vector<char*>& captions)
@@ -83,6 +72,6 @@ namespace PlayGround::Vulkan {
 		tag_info.tagSize              = captions.size();
 		tag_info.pTag                 = captions.data();
 
-		VK_CHECK(m_Context.Get<Functions>()->vkSetDebugUtilsObjectTagEXT(m_Context.Get<Device>()->Handle(), &tag_info))
+		VK_CHECK(GetContext().Get<IFunctions>()->vkSetDebugUtilsObjectTagEXT(GetContext().Get<IDevice>()->Handle(), &tag_info))
 	}
 }

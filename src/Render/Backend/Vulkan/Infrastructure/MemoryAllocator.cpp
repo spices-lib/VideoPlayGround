@@ -7,19 +7,25 @@
 
 namespace PlayGround::Vulkan {
 
-	MemoryAllocator::MemoryAllocator(Context& context)
-		: Infrastructure(context)
+	MemoryAllocator::MemoryAllocator(Context& context, EInfrastructure e)
+		: Infrastructure(context, e)
 	{
 		Create();
+	}
+
+	MemoryAllocator::~MemoryAllocator()
+	{
+		vmaDestroyAllocator(Handle());
+		Handle() = nullptr;
 	}
 
 	void MemoryAllocator::Create()
 	{
 		// see https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/quick_start.html
 		VmaAllocatorCreateInfo                  createInfo {};
-		createInfo.instance                   = m_Context.Get<Instance>()->Handle();
-		createInfo.physicalDevice             = m_Context.Get<PhysicalDevice>()->Handle();
-		createInfo.device                     = m_Context.Get<Device>()->Handle();
+		createInfo.instance                   = GetContext().Get<IInstance>()->Handle();
+		createInfo.physicalDevice             = GetContext().Get<IPhysicalDevice>()->Handle();
+		createInfo.device                     = GetContext().Get<IDevice>()->Handle();
 		createInfo.vulkanApiVersion           = VK_API_VERSION_1_4;
 		createInfo.flags                      = VMA_ALLOCATOR_CREATE_KHR_DEDICATED_ALLOCATION_BIT      | 
 												VMA_ALLOCATOR_CREATE_KHR_BIND_MEMORY2_BIT              |

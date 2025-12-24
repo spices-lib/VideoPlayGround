@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Core.h"
 #include "Unit.h"
+#include <vector>
 
 namespace PlayGround::Vulkan::Unit {
 
@@ -12,8 +13,15 @@ namespace PlayGround::Vulkan::Unit {
 
 	public:
 
-		SwapChain(Handle handle) : Unit(handle) {}
+		SwapChain() : Unit() {}
 
-		~SwapChain() override = default;
+		~SwapChain() override;
+
+		void CreateSwapchain(VkDevice device, VkSwapchainCreateInfoKHR& createInfo);
+		std::vector<VkImage> GetSwapchainImages(uint32_t imageCount);
+
+	private:
+
+		VkDevice m_Device = nullptr;
 	};
 }

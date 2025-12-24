@@ -7,19 +7,17 @@
 
 namespace PlayGround::Vulkan {
 
+	using IInstance = InfrastructureClass<class Instance, EInfrastructure::Instance>;
+
 	class Instance : public Infrastructure
 	{
 	public:
 
-		static constexpr EInfrastructure Type = EInfrastructure::Instance;
+		Instance(Context& context, EInfrastructure e);
 
-	public:
+		~Instance() override;
 
-		Instance(Context& context);
-
-		~Instance() override = default;
-
-		VkInstance& Handle() { return m_Handle; }
+		const VkInstance& Handle() { return m_Instance.GetHandle(); }
 		VkDebugUtilsMessengerEXT& DebugMessenger() { return m_DebugMessenger; }
 
 	private:
@@ -40,24 +38,11 @@ namespace PlayGround::Vulkan {
 
 	private:
 
-		Unit::Instance instance;
+		Unit::Instance m_Instance;
 		std::vector<const char*> m_ExtensionProperties;
 		std::vector<const char*> m_LayerProperties;
 		VkDebugUtilsMessengerEXT m_DebugMessenger{};
 		VkDebugUtilsMessengerCreateInfoEXT m_DebugMessengerCreateInfo{};
 	};
-
-	template<>
-	inline void Infrastructure::Destroy(Instance* infrastructure)
-	{
-#ifdef PG_DEBUG
-
-		infrastructure->m_Context.Get<Functions>()->vkDestroyDebugUtilsMessengerEXT(infrastructure->Handle(), infrastructure->DebugMessenger(), nullptr);
-
-#endif
-
-		vkDestroyInstance(infrastructure->Handle(), nullptr);
-		infrastructure->Handle() = nullptr;
-	}
 
 }

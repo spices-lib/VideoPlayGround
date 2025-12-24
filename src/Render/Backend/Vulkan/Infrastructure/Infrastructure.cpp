@@ -1,14 +1,11 @@
 #include "Infrastructure.h"
+#include "Instance.h"
+#include "Functions.h"
 
 namespace PlayGround::Vulkan {
 
-	Infrastructure::Infrastructure(Context& context)
-		: m_Context(context)
+	Infrastructure::Infrastructure(Context& context, EInfrastructure e)
+		: ContextAccessor(context)
+		, m_EInfrastructure(e)
 	{}
-
-	Infrastructure::~Infrastructure()
-	{
-		Destroy(this);
-	}
-
 }

@@ -9,28 +9,48 @@ namespace PlayGround::Vulkan {
 
     enum class EInfrastructure : uint8_t
     {
-        Instance,
+        Instance = 0,
         Functions,
         DebugUtilsObject,
         Surface,
         PhysicalDevice,
         Device,
-        Queue,
-        ThreadQueue,
+
+        GraphicQueue,
+        PresentQueue,
+        ComputeQueue,
+        TransferQueue,
+
+        GraphicThreadQueue,
+        ComputeThreadQueue,
+
         MemoryAllocator,
         SwapChain,
-        SwapChainImage,
-        GraphicCommandPool,
-        GraphicCommandBuffer,
+        
         GraphicImageSemaphore,
         GraphicQueueSemaphore,
         GraphicFence,
+        
+        ComputeQueueSemaphore,
+        ComputeFence,
 
+        GraphicCommandPool,
+        GraphicCommandBuffer,
+
+        ComputeCommandPool,
+        ComputeCommandBuffer,
 
         DescriptorPool,
 
         MAX
     };
+
+    template<typename T_, EInfrastructure E_>
+	struct InfrastructureClass
+	{
+		using T = T_;
+        static constexpr EInfrastructure E = E_;
+	};
 
     class Context : NonCopyable
     {
@@ -40,41 +60,41 @@ namespace PlayGround::Vulkan {
 
         ~Context() override = default;
 
-        template<typename T, typename... Args>
+        template<typename I, typename... Args>
         void Registry(Args&&... args);
 
-        template<typename T>
+        template<typename I>
         void UnRegistry();
 
-        template<typename T>
-        T* Get();
+        template<typename I>
+        I::T* Get();
 
     private:
 
         std::array<SP<Infrastructure>, static_cast<uint8_t>(EInfrastructure::MAX)> m_Infrastructures;
     };
 
-    template<typename T, typename... Args>
+    template<typename I, typename... Args>
     void Context::Registry(Args&&... args)
     {
-        const auto position = static_cast<uint8_t>(T::Type);
+        const auto position = static_cast<uint8_t>(I::E);
 
         if (m_Infrastructures[position])
         {
-            CORE_ERROR("Vulkan Infrastructure already registried.")
+            CORE_ERROR("Vulkan Infrastructure already registered.")
         }
 
-        m_Infrastructures[position] = CreateSP<T>(*this, std::forward<Args>(args)...);
+        m_Infrastructures[position] = CreateSP<I::T>(*this, I::E, std::forward<Args>(args)...);
     }
 
-    template <typename T>
+    template <typename I>
     void Context::UnRegistry()
     {
-        const auto position = static_cast<uint8_t>(T::Type);
+        const auto position = static_cast<uint8_t>(I::E);
 
         if (!m_Infrastructures[position])
         {
-            CORE_ERROR("Vulkan Infrastructure is unregistry.")
+            CORE_ERROR("Vulkan Infrastructure is not registered, can not be unregister")
             return;
         }
 
@@ -82,18 +102,18 @@ namespace PlayGround::Vulkan {
         m_Infrastructures[position] = nullptr;
     }
 
-    template<typename T>
-    T* Context::Get()
+    template<typename I>
+    I::T* Context::Get()
     {
-        const auto position = static_cast<uint8_t>(T::Type);
+        const auto position = static_cast<uint8_t>(I::E);
 
         if (!m_Infrastructures[position])
         {
-            CORE_ERROR("Vulkan Infrastructure is unregistry.")
+            CORE_ERROR("Vulkan Infrastructure is not registered, can not be got")
             return nullptr;
         }
 
-        return static_cast<T*>(m_Infrastructures[position].get());
+        return static_cast<I::T*>(m_Infrastructures[position].get());
     }
 
 }

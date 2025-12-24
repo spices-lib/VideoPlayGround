@@ -1,6 +1,6 @@
 #include "PhysicalDevice.h"
 #include "Instance.h"
-#include "KHR/Surface.h"
+#include "Surface.h"
 #include <vector>
 #include <string>
 #include <set>
@@ -9,15 +9,15 @@
 
 namespace PlayGround::Vulkan {
 
-	PhysicalDevice::PhysicalDevice(Context& context)
-        : Infrastructure(context)
+	PhysicalDevice::PhysicalDevice(Context& context, EInfrastructure e)
+        : Infrastructure(context, e)
     {
         Create();
     }
 
 	void PhysicalDevice::Create()
     {
-        const auto instance = m_Context.Get<Instance>()->Handle();
+        const auto instance = GetContext().Get<IInstance>()->Handle();
 
         uint32_t deviceCount = 0;
         vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
@@ -36,9 +36,9 @@ namespace PlayGround::Vulkan {
 		{
 			// All this condition need satisfied.
 			if (IsExtensionMeetDemand(physicalDevice) && IsPropertyMeetDemand(physicalDevice) && IsFeatureMeetDemand(physicalDevice) &&
-				IsQueueMeetDemand(physicalDevice, m_Context.Get<Surface>()->Handle()))
+				IsQueueMeetDemand(physicalDevice, GetContext().Get<ISurface>()->Handle()))
 			{
-				m_Handle = physicalDevice;
+				m_PhysicalDevice.SetHandle(physicalDevice);
 
 				CORE_INFO("Vulkan PhysicalDevice Selected.")
 				return;
@@ -157,10 +157,10 @@ namespace PlayGround::Vulkan {
 
 	SwapChainpProperty PhysicalDevice::QuerySwapChainSupport(GLFWwindow* window)
 	{
-		auto surface = m_Context.Get<Surface>()->Handle();
+		auto surface = GetContext().Get<ISurface>()->Handle();
 
 		SwapChainpProperty property{};
-		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_Handle, surface, &property.capabilities);
+		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(Handle(), surface, &property.capabilities);
 
 		if (property.capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
 		{
@@ -184,12 +184,12 @@ namespace PlayGround::Vulkan {
 		}
 
 		uint32_t formatCount;
-		vkGetPhysicalDeviceSurfaceFormatsKHR(m_Handle, surface, &formatCount, nullptr);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(Handle(), surface, &formatCount, nullptr);
 
 		if (formatCount != 0)
 		{
 			property.formats.resize(formatCount);
-			vkGetPhysicalDeviceSurfaceFormatsKHR(m_Handle, surface, &formatCount, property.formats.data());
+			vkGetPhysicalDeviceSurfaceFormatsKHR(Handle(), surface, &formatCount, property.formats.data());
 
 			property.format = property.formats[0];
 
@@ -205,12 +205,12 @@ namespace PlayGround::Vulkan {
 		}
 
 		uint32_t presentModeCount;
-		vkGetPhysicalDeviceSurfacePresentModesKHR(m_Handle, surface, &presentModeCount, nullptr);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(Handle(), surface, &presentModeCount, nullptr);
 
 		if (presentModeCount != 0)
 		{
 			property.presentModes.resize(presentModeCount);
-			vkGetPhysicalDeviceSurfacePresentModesKHR(m_Handle, surface, &presentModeCount, property.presentModes.data());
+			vkGetPhysicalDeviceSurfacePresentModesKHR(Handle(), surface, &presentModeCount, property.presentModes.data());
 
 			property.presentMode = property.presentModes[0];
 

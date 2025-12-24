@@ -13,7 +13,7 @@ namespace PlayGround::Vulkan::Unit {
 
 	public:
 
-		Queue(Handle handle) : Unit(handle) {}
+		Queue() : Unit() {}
 
 		~Queue() override = default;
 

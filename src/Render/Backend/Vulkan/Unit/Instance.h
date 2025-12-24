@@ -12,8 +12,10 @@ namespace PlayGround::Vulkan::Unit {
 
 	public:
 
-		Instance(Handle handle) : Unit(handle) {}
+		Instance() : Unit() {}
 
-		~Instance() override = default;
+		~Instance() override;
+
+		void CreateInstance(const VkInstanceCreateInfo& createInfo);
 	};
 }

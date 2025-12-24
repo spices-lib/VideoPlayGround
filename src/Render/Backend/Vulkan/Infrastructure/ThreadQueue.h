@@ -1,42 +1,28 @@
 #pragma once
 #include "Core/Core.h"
 #include "Infrastructure.h"
+#include "Render/Backend/Vulkan/Unit/Queue.h"
+#include <queue>
 
 namespace PlayGround::Vulkan {
+
+	using IGraphicThreadQueue = InfrastructureClass<class ThreadQueue, EInfrastructure::GraphicThreadQueue>;
+	using IComputeThreadQueue = InfrastructureClass<class ThreadQueue, EInfrastructure::ComputeThreadQueue>;
 
 	class ThreadQueue : public Infrastructure
 	{
 	public:
 
-		static constexpr EInfrastructure Type = EInfrastructure::ThreadQueue;
-
-	public:
-
-		ThreadQueue(Context& context);
+		ThreadQueue(Context& context, EInfrastructure e);
 
 		~ThreadQueue() override = default;
 
-		void AddGraphic(VkQueue handle);
-		void AddCompute(VkQueue handle);
-
-	public:
-
-		void Submit(VkCommandBuffer commandBuffer) const;
-
-		void Wait() const;
+		void Add(VkQueue handle);
 
 	private:
 
-		void Init(VkQueue handle);
-
-	private:
-
-		VkQueue m_Handle = nullptr;
+		std::queue<Unit::Queue> m_Queues;
 
 	};
-
-	template<>
-	inline void Infrastructure::Destroy(ThreadQueue* infrastructure)
-	{}
-
+	
 }

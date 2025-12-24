@@ -12,8 +12,11 @@ namespace PlayGround::Vulkan::Unit {
 
 	public:
 
-		Device(Handle handle) : Unit(handle) {}
+		Device() : Unit() {}
 
-		~Device() override = default;
+		~Device() override;
+
+		void CreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo* createInfo);
+		VkQueue GetDeviceQueue(uint32_t queueFamilyIndex, uint32_t queueIndex);
 	};
 }

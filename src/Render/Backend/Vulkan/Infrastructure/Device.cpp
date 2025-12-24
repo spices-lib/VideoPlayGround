@@ -3,27 +3,27 @@
 #include "Queue.h"
 #include "ThreadQueue.h"
 #include <unordered_map>
-#include "DebugUtils.h"
+#include "DebugUtilsObject.h"
 
 namespace PlayGround::Vulkan {
 
-    Device::Device(Context& context)
-        : Infrastructure(context)
+    Device::Device(Context& context, EInfrastructure e)
+        : Infrastructure(context, e)
     {
         Create();
     }
 
     void Device::Create()
     {
-		const auto physicalDevice = m_Context.Get<PhysicalDevice>();
+		const auto physicalDevice = GetContext().Get<IPhysicalDevice>();
 		const auto& queueFaimilies = physicalDevice->GetQueueFamilies();
 
 		std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::vector<VkQueue>>> queueFamilies;
 
 		queueFamilies[queueFaimilies.graphic .value()][0] = std::vector<VkQueue>(1 + NThreadQueue, VK_NULL_HANDLE);
-		queueFamilies[queueFaimilies.present .value()][1] = std::vector<VkQueue>(1, VK_NULL_HANDLE);
+		queueFamilies[queueFaimilies.present .value()][1] = std::vector<VkQueue>(1,                VK_NULL_HANDLE);
 		queueFamilies[queueFaimilies.compute .value()][2] = std::vector<VkQueue>(1 + NThreadQueue, VK_NULL_HANDLE);
-		queueFamilies[queueFaimilies.transfer.value()][3] = std::vector<VkQueue>(1, VK_NULL_HANDLE);
+		queueFamilies[queueFaimilies.transfer.value()][3] = std::vector<VkQueue>(1,                VK_NULL_HANDLE);
 
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 		std::vector<std::shared_ptr<std::vector<float>>> QueuePriorities;
@@ -63,8 +63,8 @@ namespace PlayGround::Vulkan {
 		createInfo.enabledLayerCount                            = 0;
 		createInfo.pNext                                        = &deviceFeatures;
 
-		VK_CHECK(vkCreateDevice(physicalDevice->Handle(), &createInfo, nullptr, &m_Handle));
-		DEBUGUTILS_SETOBJECTNAME(VK_OBJECT_TYPE_DEVICE, (uint64_t)m_Handle, physicalDevice->GetProperties().deviceName)
+		m_Device.CreateDevice(physicalDevice->Handle(), &createInfo);
+		DEBUGUTILS_SETOBJECTNAME(m_Device, physicalDevice->GetProperties().deviceName)
 
 		for (auto& [family, idItems] : queueFamilies)
 		{
@@ -73,13 +73,11 @@ namespace PlayGround::Vulkan {
 			{
 				for (size_t i = 0; i < items.size(); i++)
 				{
-					vkGetDeviceQueue(m_Handle, family, index, &items[i]);
+					items[i] = m_Device.GetDeviceQueue(family, index);
 					index++;
 				}
 			}
 		}
-
-		
 
 #if 0 // Use One Queue for all commands. This method with higher fps.
 
@@ -97,15 +95,23 @@ namespace PlayGround::Vulkan {
 
 #endif
 
-		m_Context.Registry<Queue>();
-		m_Context.Get<Queue>()->Init(graphic, present, compute, transfer);
+		GetContext().Registry<IGraphicQueue> (graphic);
+		GetContext().Registry<IPresentQueue> (present);
+		GetContext().Registry<IComputeQueue> (compute);
+		GetContext().Registry<ITransferQueue>(transfer);
 
-		m_Context.Registry<ThreadQueue>();
+		/*DEBUGUTILS_SETOBJECTNAME(m_Context.Get<IGraphicQueue>() , "GraphicQueue")
+		DEBUGUTILS_SETOBJECTNAME(m_Context.Get<IPresentQueue>() , "PresentQueue")
+		DEBUGUTILS_SETOBJECTNAME(m_Context.Get<IComputeQueue>() , "ComputeQueue")
+		DEBUGUTILS_SETOBJECTNAME(m_Context.Get<ITransferQueue>(), "TransferQueue")*/
+
+		GetContext().Registry<IGraphicThreadQueue>();
+		GetContext().Registry<IComputeThreadQueue>();
 
 		for (int i = 0; i < NThreadQueue; i++)
 		{
-			m_Context.Get<ThreadQueue>()->AddGraphic(queueFamilies[queueFaimilies.graphic.value()][0][i + 1]);
-			m_Context.Get<ThreadQueue>()->AddCompute(queueFamilies[queueFaimilies.compute.value()][2][i + 1]);
+			GetContext().Get<IGraphicThreadQueue>()->Add(queueFamilies[queueFaimilies.graphic.value()][0][i + 1]);
+			GetContext().Get<IComputeThreadQueue>()->Add(queueFamilies[queueFaimilies.compute.value()][2][i + 1]);
 		}
     }
 

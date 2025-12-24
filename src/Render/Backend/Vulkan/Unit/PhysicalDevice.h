@@ -12,7 +12,7 @@ namespace PlayGround::Vulkan::Unit {
 
 	public:
 
-		PhysicalDevice(Handle handle) : Unit(handle) {}
+		PhysicalDevice() : Unit() {}
 
 		~PhysicalDevice() override = default;
 	};

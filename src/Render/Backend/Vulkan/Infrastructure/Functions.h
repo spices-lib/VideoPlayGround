@@ -10,15 +10,13 @@ namespace PlayGround::Vulkan {
 #define EXPLAIN_VK_FUNCTION_POINTER(function)  \
 	function = reinterpret_cast<PFN_##function>(vkGetInstanceProcAddr(instance, #function));
 
+	using IFunctions = InfrastructureClass<class Functions, EInfrastructure::Functions>;
+
 	class Functions : public Infrastructure
 	{
 	public:
 
-		static constexpr EInfrastructure Type = EInfrastructure::Functions;
-
-	public:
-
-		Functions(Context& context);
+		Functions(Context& context, EInfrastructure e);
 		~Functions() override = default;
 
 		void Init(VkInstance instance);
@@ -90,4 +88,5 @@ namespace PlayGround::Vulkan {
 		VK_FUNCTION_POINTER(vkCopyMemoryToImageEXT                          )
 		VK_FUNCTION_POINTER(vkCopyImageToMemoryEXT                          )
 	};
+	
 }

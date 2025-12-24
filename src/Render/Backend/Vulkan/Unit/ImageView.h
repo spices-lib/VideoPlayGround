@@ -12,8 +12,14 @@ namespace PlayGround::Vulkan::Unit {
 
 	public:
 
-		ImageView(Handle handle) : Unit(handle) {}
+		ImageView() : Unit() {}
 
-		~ImageView() override = default;
+		~ImageView() override;
+
+		void CreateImageView(VkDevice device, const VkImageViewCreateInfo& info);
+
+	private:
+
+		VkDevice m_Device = VK_NULL_HANDLE;
 	};
 }

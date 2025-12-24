@@ -12,7 +12,7 @@ namespace PlayGround::Vulkan::Unit {
 
 	public:
 
-		Image(Handle handle) : Unit(handle) {}
+		Image() : Unit() {}
 
 		~Image() override = default;
 	};

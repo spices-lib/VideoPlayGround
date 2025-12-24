@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Core.h"
 #include "Infrastructure.h"
+#include "Render/Backend/Vulkan/Unit/PhysicalDevice.h"
 #include <vector>
 #include <optional>
 #include <GLFW/glfw3.h>
@@ -31,19 +32,17 @@ namespace PlayGround::Vulkan {
 		VkExtent2D                      viewPortSize = { 1280, 960 };
 	};
 
+	using IPhysicalDevice = InfrastructureClass<class PhysicalDevice, EInfrastructure::PhysicalDevice>;
+
 	class PhysicalDevice : public Infrastructure
 	{
 	public:
 
-		static constexpr EInfrastructure Type = EInfrastructure::PhysicalSurface;
-
-	public:
-
-		PhysicalDevice(Context& context);
+		PhysicalDevice(Context& context, EInfrastructure e);
 
 		~PhysicalDevice() override = default;
 
-		VkPhysicalDevice& Handle() { return m_Handle; }
+		const VkPhysicalDevice& Handle() { return m_PhysicalDevice.GetHandle(); }
 
 		const std::vector<const char*>& GetExtensionRequirements();
 
@@ -69,16 +68,10 @@ namespace PlayGround::Vulkan {
 
 	private:
 
-		VkPhysicalDevice m_Handle = nullptr;
+		Unit::PhysicalDevice m_PhysicalDevice;
 		std::vector<const char*> m_ExtensionProperties;
 		QueueFamilies m_QueueFamilies;
 		VkPhysicalDeviceProperties m_Properties;
 	};
-
-	template<>
-	inline void Infrastructure::Destroy(PhysicalDevice* infrastructure)
-	{
-		infrastructure->Handle() = nullptr;
-	}
 
 }

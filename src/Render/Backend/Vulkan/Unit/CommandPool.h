@@ -12,8 +12,14 @@ namespace PlayGround::Vulkan::Unit {
 
 	public:
 
-		CommandPool(Handle handle) : Unit(handle) {}
+		CommandPool() : Unit() {}
 
-		~CommandPool() override = default;
+		~CommandPool() override;
+
+		void CreateCommandPool(VkDevice device, const VkCommandPoolCreateInfo& info);
+
+	private:
+
+		VkDevice m_Device = VK_NULL_HANDLE;
 	};
 }

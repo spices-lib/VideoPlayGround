@@ -12,8 +12,15 @@ namespace PlayGround::Vulkan::Unit {
 
 	public:
 
-		CommandBuffer(Handle handle) : Unit(handle) {}
+		CommandBuffer() : Unit() {}
 
-		~CommandBuffer() override = default;
+		~CommandBuffer() override;
+
+		void CreateCommandBuffer(VkDevice device, const VkCommandBufferAllocateInfo& info);
+
+	private:
+
+		VkDevice m_Device = VK_NULL_HANDLE;
+		VkCommandPool m_CommandPool = VK_NULL_HANDLE;
 	};
 }

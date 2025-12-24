@@ -12,8 +12,14 @@ namespace PlayGround::Vulkan::Unit {
 
 	public:
 
-		Semaphore(Handle handle) : Unit(handle) {}
+		Semaphore() : Unit() {}
 
-		~Semaphore() override = default;
+		~Semaphore() override;
+
+		void CreateSemaphore(VkDevice device, const VkSemaphoreCreateInfo& info);
+
+	private:
+
+		VkDevice m_Device = VK_NULL_HANDLE;
 	};
 }

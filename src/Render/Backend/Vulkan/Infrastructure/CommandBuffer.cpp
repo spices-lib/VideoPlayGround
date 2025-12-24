@@ -1,0 +1,32 @@
+#include "CommandBuffer.h"
+#include "Device.h"
+#include "DebugUtilsObject.h"
+
+namespace PlayGround::Vulkan {
+
+    CommandBuffer::CommandBuffer(Context& context, EInfrastructure e, VkCommandPool commandPool, VkCommandBufferLevel level, uint32_t count)
+        : Infrastructure(context, e)
+    {
+        Create(commandPool, level, count);
+    }
+
+    void CommandBuffer::Create(VkCommandPool commandPool, VkCommandBufferLevel level, uint32_t count)
+    {
+        VkCommandBufferAllocateInfo       allocInfo{};
+		allocInfo.sType                 = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.commandPool           = commandPool;
+		allocInfo.level                 = level;
+		allocInfo.commandBufferCount    = 1;
+
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            auto commandBuffer = CreateSP<Unit::CommandBuffer>();
+            commandBuffer->CreateCommandBuffer(GetContext().Get<IDevice>()->Handle(), allocInfo);
+            
+            m_CommandBuffers.emplace_back(commandBuffer);
+
+            DEBUGUTILS_SETOBJECTNAME(*commandBuffer, "CommandBuffer")
+        }
+    }
+
+}

@@ -29,17 +29,15 @@ namespace PlayGround::Vulkan {
 
 	} VMAMemoryPropertyFlagExtendBits;
 
+	using IMemoryAllocator = InfrastructureClass<class MemoryAllocator, EInfrastructure::MemoryAllocator>;
+
 	class MemoryAllocator : public Infrastructure
 	{
 	public:
 
-		static constexpr EInfrastructure Type = EInfrastructure::MemoryAllocator;
+		MemoryAllocator(Context& context, EInfrastructure e);
 
-	public:
-
-		MemoryAllocator(Context& context);
-
-		~MemoryAllocator() override = default;
+		~MemoryAllocator() override;
 
 		VmaAllocator& Handle() { return m_Handle; }
 
@@ -51,12 +49,5 @@ namespace PlayGround::Vulkan {
 
 		VmaAllocator m_Handle = nullptr;
 	};
-
-	template<>
-	inline void Infrastructure::Destroy(MemoryAllocator* infrastructure)
-	{
-		vmaDestroyAllocator(infrastructure->Handle());
-		infrastructure->Handle() = nullptr;
-	}
 
 }

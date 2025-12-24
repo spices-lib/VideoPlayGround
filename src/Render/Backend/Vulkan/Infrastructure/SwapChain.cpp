@@ -6,20 +6,20 @@
 
 namespace PlayGround::Vulkan {
 
-    SwapChain::SwapChain(Context& context, GLFWwindow* window)
-        : Infrastructure(context)
+    SwapChain::SwapChain(Context& context, EInfrastructure e, GLFWwindow* window)
+        : Infrastructure(context, e)
     {
         Create(window);
     }
 
     void SwapChain::Create(GLFWwindow* window)
     {
-		auto physicalDevice = m_Context.Get<PhysicalDevice>();
+		auto physicalDevice = GetContext().Get<IPhysicalDevice>();
 		auto property = physicalDevice->QuerySwapChainSupport(window);
 
         VkSwapchainCreateInfoKHR                 createInfo{};
 		createInfo.sType                       = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		createInfo.surface                     = m_Context.Get<Surface>()->Handle();
+		createInfo.surface                     = GetContext().Get<ISurface>()->Handle();
 		createInfo.minImageCount               = MaxFrameInFlight;
 		createInfo.imageFormat                 = property.format.format;
 		createInfo.imageColorSpace             = property.format.colorSpace;
@@ -52,24 +52,23 @@ namespace PlayGround::Vulkan {
 		createInfo.clipped                     = VK_TRUE;
 		createInfo.oldSwapchain                = VK_NULL_HANDLE;
 
-		VK_CHECK(vkCreateSwapchainKHR(m_Context.Get<Device>()->Handle(), &createInfo, nullptr, &m_Handle));
-		DEBUGUTILS_SETOBJECTNAME(VK_OBJECT_TYPE_SWAPCHAIN_KHR, reinterpret_cast<uint64_t>(m_Handle), "SpicesEngineSwapChainKHR")
+		m_SwapChain.CreateSwapchain(GetContext().Get<IDevice>()->Handle(), createInfo);
+		DEBUGUTILS_SETOBJECTNAME(m_SwapChain, "SpicesEngineSwapChainKHR")
 
 		uint32_t imageCount = MaxFrameInFlight;
-		vkGetSwapchainImagesKHR(m_Context.Get<Device>()->Handle(), m_Handle, &imageCount, m_VulkanState.m_SwapChainImages.data());
+		auto images = m_SwapChain.GetSwapchainImages(imageCount);
 
-		for (size_t i = 0; i < MaxFrameInFlight; i++) 
+		for (size_t i = 0; i < MaxFrameInFlight; i++)
 		{
+			auto swapChainImage = CreateSP<Image>(GetContext());
+			swapChainImage->SetImage(images[i]);
+
 			{
-				/**
-				* @brief Instance a VkImageViewCreateInfo.
-				*/
 				VkImageViewCreateInfo info{};
 				info.sType    = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-				info.image    = m_VulkanState.m_SwapChainImages[i];
 
 				info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-				info.format   = m_VulkanDevice->GetSwapChainSupport().format.format;
+				info.format   = property.format.format;
 
 				info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
 				info.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -82,19 +81,10 @@ namespace PlayGround::Vulkan {
 				info.subresourceRange.baseArrayLayer = 0;
 				info.subresourceRange.layerCount     = 1;
 
-				DEBUGUTILS_SETOBJECTNAME(VK_OBJECT_TYPE_IMAGE, reinterpret_cast<uint64_t>(m_VulkanState.m_SwapChainImages[i]), m_VulkanState.m_Device, "SwapChainImage")
-
-				VK_CHECK(vkCreateImageView(m_VulkanState.m_Device, &info, nullptr, &m_VulkanState.m_SwapChainImageViews[i]))
-				DEBUGUTILS_SETOBJECTNAME(VK_OBJECT_TYPE_IMAGE_VIEW, reinterpret_cast<uint64_t>(m_VulkanState.m_SwapChainImageViews[i]), m_VulkanState.m_Device, "SwapChainImageView")
+				swapChainImage->CreateImageView(GetContext().Get<IDevice>()->Handle(), info);
 			}
 
-			/**
-			* @brief Create Sampler.
-			*/
 			{
-				/**
-				* @brief Instance a VkSamplerCreateInfo.
-				*/
 				VkSamplerCreateInfo samplerInfo{};
 				samplerInfo.sType            = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 				samplerInfo.magFilter        = VK_FILTER_LINEAR;
@@ -105,7 +95,7 @@ namespace PlayGround::Vulkan {
 				samplerInfo.anisotropyEnable = VK_TRUE;
 
 				VkPhysicalDeviceProperties properties{};
-				vkGetPhysicalDeviceProperties(m_VulkanState.m_PhysicalDevice, &properties);
+				vkGetPhysicalDeviceProperties(GetContext().Get<IPhysicalDevice>()->Handle(), &properties);
 
 				samplerInfo.maxAnisotropy           = properties.limits.maxSamplerAnisotropy;
 				samplerInfo.borderColor             = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
@@ -118,9 +108,12 @@ namespace PlayGround::Vulkan {
 				samplerInfo.minLod                  = 0.0f;
 				samplerInfo.maxLod                  = static_cast<float>(0);
 
-				VK_CHECK(vkCreateSampler(m_VulkanState.m_Device, &samplerInfo, nullptr, &m_VulkanState.m_SwapChainImageSamplers[i]))
-				DEBUGUTILS_SETOBJECTNAME(VK_OBJECT_TYPE_SAMPLER, reinterpret_cast<uint64_t>(m_VulkanState.m_SwapChainImageSamplers[i]), m_VulkanState.m_Device, "SwapChainImageSampler")
+				swapChainImage->CreateSampler(GetContext().Get<IDevice>()->Handle(), samplerInfo);
 			}
+
+			swapChainImage->SetName("SwapChain");
+
+			m_SwapChainImage[i] = swapChainImage;
 		}
     }
 

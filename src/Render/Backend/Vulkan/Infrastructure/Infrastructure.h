@@ -3,32 +3,29 @@
 #include "Core/NonCopyable.h"
 #include "Context.h"
 #include "Render/Backend/Vulkan/Utils.h"
+#include "ContextAccessor.h"
 
 namespace PlayGround::Vulkan {
 
-    class Infrastructure : public NonCopyable
+    class Infrastructure : public ContextAccessor, public NonCopyable
     {
     public:
 
-        explicit Infrastructure(Context& context);
+        explicit Infrastructure(Context& context, EInfrastructure e);
 
-        ~Infrastructure() override;
+        ~Infrastructure() override = default;
+
+        const EInfrastructure& GetInfrastructure() const { return m_EInfrastructure; }
 
     protected:
 
         template<typename T>
         static void Destroy(T*);
 
-    protected:
+    private:
 
-        Context& m_Context;
+        EInfrastructure m_EInfrastructure;
 
     };
-
-    template <typename T>
-    void Infrastructure::Destroy(T*)
-    {
-        CORE_WARN("Vulkan Infrastructure Not implement Destroy API.")
-    }
 
 }

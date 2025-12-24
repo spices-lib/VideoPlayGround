@@ -62,10 +62,19 @@ namespace PlayGround::Vulkan {
 
 	}
 
-    Instance::Instance(Context& context)
-        : Infrastructure(context)
+    Instance::Instance(Context& context, EInfrastructure e)
+        : Infrastructure(context, e)
     {
         Create();
+    }
+
+    Instance::~Instance()
+    {
+#ifdef PG_DEBUG
+
+		GetContext().Get<IFunctions>()->vkDestroyDebugUtilsMessengerEXT(Handle(), DebugMessenger(), nullptr);
+
+#endif
     }
 
     void Instance::Create()
@@ -131,10 +140,10 @@ namespace PlayGround::Vulkan {
 
 #endif
 
-        VK_CHECK(vkCreateInstance(&createInfo, nullptr, &m_Handle))
+		m_Instance.CreateInstance(createInfo);
 
-		m_Context.Registry<Functions>();
-		m_Context.Get<Functions>()->Init(m_Handle);
+		GetContext().Registry<IFunctions>();
+		GetContext().Get<IFunctions>()->Init(Handle());
 
 		SetVulkanDebugCallbackFuncPointer();
     }
@@ -234,7 +243,7 @@ namespace PlayGround::Vulkan {
 
 #ifdef PG_DEBUG
 
-		m_Context.Get<Functions>()->vkCreateDebugUtilsMessengerEXT(m_Handle, &m_DebugMessengerCreateInfo, nullptr, &m_DebugMessenger);
+		GetContext().Get<IFunctions>()->vkCreateDebugUtilsMessengerEXT(Handle(), &m_DebugMessengerCreateInfo, nullptr, &m_DebugMessenger);
 
 #endif
 

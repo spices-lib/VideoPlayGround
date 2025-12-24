@@ -3,8 +3,8 @@
 
 namespace PlayGround::Vulkan {
 
-	Functions::Functions(Context& context)
-		: Infrastructure(context)
+	Functions::Functions(Context& context, EInfrastructure e)
+		: Infrastructure(context, e)
 	{}
 
 	void Functions::Init(VkInstance instance)

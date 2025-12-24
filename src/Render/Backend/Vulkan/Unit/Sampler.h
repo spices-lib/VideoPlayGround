@@ -12,8 +12,14 @@ namespace PlayGround::Vulkan::Unit {
 
 	public:
 
-		Sampler(Handle handle) : Unit(handle) {}
+		Sampler() : Unit() {}
 
-		~Sampler() override = default;
+		~Sampler() override;
+
+		void CreateSampler(VkDevice device, const VkSamplerCreateInfo& info);
+
+	private:
+
+		VkDevice m_Device = VK_NULL_HANDLE;
 	};
 }

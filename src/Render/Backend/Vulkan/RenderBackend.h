@@ -2,13 +2,18 @@
 #include "Core/Core.h"
 #include "Render/Frontend/RenderFrontend.h"
 
+namespace PlayGround {
+
+    class Window;
+}
+
 namespace PlayGround::Vulkan {
 
     class RenderBackend : public RenderFrontend
     {
     public:
 
-        RenderBackend(class Window* window);
+        RenderBackend(Window* window);
 
         ~RenderBackend() override;
 

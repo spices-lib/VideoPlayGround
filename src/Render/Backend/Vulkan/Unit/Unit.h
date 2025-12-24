@@ -1,19 +1,18 @@
 #pragma once
 #include "Core/Core.h"
 #include "Render/Backend/Vulkan/Utils.h"
-#include "Render/Backend/Vulkan/Infrastructure/DebugUtilsObject.h"
 #include <assert.h>
 
 namespace PlayGround::Vulkan::Unit {
 
-	template<typename Handle, VkObjectType E>
+	template<typename H, VkObjectType E_>
 	class Unit
 	{
 	public:
 
-		static constexpr EUnit s_EUnit = E;
+		static constexpr VkObjectType E = E_;
 
-		using Handle = Handle;
+		using Handle = H;
 
 	public:
 
@@ -21,20 +20,13 @@ namespace PlayGround::Vulkan::Unit {
 
 		virtual ~Unit() { ResetHandle(); }
 
-		const EUnit& GetEUnit() const { return s_EUnit; }
+		const VkObjectType& GetEUnit() const { return E; }
 
 		void SetHandle(const Handle& handle) { assert(handle); m_Handle = handle; }
 
 		const Handle& GetHandle() const { return m_Handle; }
 
 		void ResetHandle() { m_Handle = nullptr; }
-
-		void SetName(DebugUtilsObject* debugObject, const std::string& name)
-		{
-			assert(debugObject && m_Handle);
-
-			debugObject->SetObjectName(s_EUnit, reinterpret_cast<uint64_t>(m_Handle), name);
-		}
 
 	protected:
 

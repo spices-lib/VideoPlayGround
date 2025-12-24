@@ -12,8 +12,14 @@ namespace PlayGround::Vulkan::Unit {
 
 	public:
 
-		Fence(Handle handle) : Unit(handle) {}
+		Fence() : Unit() {}
 
-		~Fence() override = default;
+		~Fence() override;
+
+		void CreateFence(VkDevice device, const VkFenceCreateInfo& info);
+
+	private:
+
+		VkDevice m_Device = VK_NULL_HANDLE;
 	};
 }
