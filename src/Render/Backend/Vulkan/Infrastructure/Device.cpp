@@ -13,7 +13,12 @@ namespace PlayGround::Vulkan {
         Create();
     }
 
-    void Device::Create()
+	void Device::Wait()
+	{
+		m_Device.Wait();
+	}
+
+	void Device::Create()
     {
 		const auto physicalDevice = GetContext().Get<IPhysicalDevice>();
 		const auto& queueFaimilies = physicalDevice->GetQueueFamilies();

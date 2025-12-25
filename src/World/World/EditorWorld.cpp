@@ -4,20 +4,18 @@
 #include "World/Component/TransformComponent.h"
 #include "World/Component/ScriptComponent.h"
 #include "Scripts/NativeScripts/EngineClock.h"
+#include "Slate/ViewPort.h"
 
 namespace PlayGround::Editor {
 
     void EditorWorld::OnAttached()
     {
+        World::OnAttached();
+
         CreateExampleScene();
 
         SetFlag(WorldMarkBit::DynamicScriptTick, true);
         SetFlag(WorldMarkBit::DynamicScriptEvent, true);
-    }
-
-    void EditorWorld::Layout()
-    {
-        
     }
 
     void EditorWorld::CreateExampleScene()
@@ -27,5 +25,7 @@ namespace PlayGround::Editor {
         auto& scriptComponent = scene->GetComponent<ScriptComponent>(scene->GetRoot());
 
         scriptComponent.AddScript(CreateSP<EngineClock>(scene));
+
+        RegistrySlate<Slate::ViewPort>("ViewPort");
     }
 }

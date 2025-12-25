@@ -15,7 +15,7 @@ namespace PlayGround {
 
     private:
 
-        std::bitset<static_cast<size_t>(T::ALL)> m_Bits{};
+        std::bitset<static_cast<size_t>(T::Count)> m_Bits{};
         mutable std::shared_mutex m_Mutex;
 
     public:
@@ -120,7 +120,7 @@ namespace PlayGround {
 
         void Set(T bit, bool value)
         {
-            if (bit == T::ALL)
+            if (bit == T::Count)
             {
                 Reset();
 
@@ -139,7 +139,7 @@ namespace PlayGround {
 
         bool Test(T bit) const
         {
-            if (bit == T::ALL)
+            if (bit == T::Count)
             {
                 return !None();
             }
@@ -160,7 +160,7 @@ namespace PlayGround {
 
         void Reset(T bit)
         {
-            if (bit == T::ALL)
+            if (bit == T::Count)
             {
                 Reset();
             }
@@ -181,7 +181,7 @@ namespace PlayGround {
 
         void Flip(T bit)
         {
-            if (bit == T::ALL)
+            if (bit == T::Count)
             {
                 Flip();
             }

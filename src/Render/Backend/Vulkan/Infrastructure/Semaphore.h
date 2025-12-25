@@ -6,9 +6,10 @@
 
 namespace PlayGround::Vulkan {
 
-	using IGraphicImageSemaphore = InfrastructureClass<class Semaphore, EInfrastructure::GraphicImageSemaphore>;
-	using IGraphicQueueSemaphore = InfrastructureClass<class Semaphore, EInfrastructure::GraphicQueueSemaphore>;
-	using IComputeQueueSemaphore = InfrastructureClass<class Semaphore, EInfrastructure::ComputeQueueSemaphore>;
+	using IGraphicImageSemaphore     = InfrastructureClass<class Semaphore, EInfrastructure::GraphicImageSemaphore>;
+	using IGraphicQueueSemaphore     = InfrastructureClass<class Semaphore, EInfrastructure::GraphicQueueSemaphore>;
+	using IComputeQueueSemaphore     = InfrastructureClass<class Semaphore, EInfrastructure::ComputeQueueSemaphore>;
+	using IVideoEncodeQueueSemaphore = InfrastructureClass<class Semaphore, EInfrastructure::VideoEncodeQueueSemaphore>;
 
 	class Semaphore : public Infrastructure
 	{

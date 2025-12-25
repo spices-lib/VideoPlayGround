@@ -9,40 +9,40 @@ namespace PlayGround {
 
     enum class EventType : uint32_t
     {
-        WindowClose            = 0,
-        WindowResize           = 1,
-        WindowResizeOver       = 2,
-        WindowFocus            = 3,
-        WindowLostFocus        = 4,
-        WindowMoved            = 5,
+        WindowClose = 0,
+        WindowResize,
+        WindowResizeOver,
+        WindowFocus, 
+        WindowLostFocus,
+        WindowMoved, 
 
-        SlateResize            = 6,
+        SlateResize, 
 
-        KeyPressed             = 7,
-        KeyReleased            = 8,
-        KeyTyped               = 9,
+        KeyPressed,
+        KeyReleased,
+        KeyTyped,
 
-        MouseButtonPressed     = 10,
-        MouseButtonReleased    = 11,
-        MouseMoved             = 12,
-        MouseScrolled          = 13,
+        MouseButtonPressed,
+        MouseButtonReleased,
+        MouseMoved,
+        MouseScrolled,
 
-        MeshAdded              = 14,
+        Engine,
 
-        ALL                  = 18,
+        Count               
     };
 
     enum class EventCategory : uint16_t
     {
-        EventCategoryApplication  = 0,
-        EventCategorySlate        = 1,
-        EventCategoryInput        = 2,
-        EventCategoryKeyboard     = 3,
-        EventCategoryMouse        = 4,
-        EventCategoryMouseButton  = 5,
-        EventCategoryWorld        = 6,
+        EventCategoryApplication = 0,
+        EventCategorySlate,
+        EventCategoryInput,
+        EventCategoryKeyboard,
+        EventCategoryMouse,
+        EventCategoryMouseButton,
+        EventCategoryEngine,
 
-        ALL                       = 7
+        Count
     };
 
 namespace Detail {
@@ -120,7 +120,7 @@ namespace Detail {
         {
             if (m_Event.GetEventType() == T::GetStaticType())
             {
-                m_Event.Handled = func(*static_cast<T*>(&m_Event));
+                m_Event.Handled = std::invoke(func, *static_cast<T*>(&m_Event));
 
                 return true;
             }

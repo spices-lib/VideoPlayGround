@@ -17,6 +17,8 @@ namespace PlayGround {
         virtual void BeginFrame(class Scene* scene) = 0;
         virtual void EndFrame(class Scene* scene) = 0;
         virtual void RenderFrame(class Scene* scene) = 0;
+        virtual void Wait() = 0;
+        virtual void InitSlateModule() = 0;
 
     protected:
 

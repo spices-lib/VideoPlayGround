@@ -6,8 +6,9 @@
 
 namespace PlayGround::Vulkan {
 
-	using IGraphicCommandBuffer = InfrastructureClass<class CommandBuffer, EInfrastructure::GraphicCommandBuffer>;
-	using IComputeCommandBuffer = InfrastructureClass<class CommandBuffer, EInfrastructure::ComputeCommandBuffer>;
+	using IGraphicCommandBuffer     = InfrastructureClass<class CommandBuffer, EInfrastructure::GraphicCommandBuffer>;
+	using IComputeCommandBuffer     = InfrastructureClass<class CommandBuffer, EInfrastructure::ComputeCommandBuffer>;
+	using IVideoEncodeCommandBuffer = InfrastructureClass<class CommandBuffer, EInfrastructure::VideoEncodeCommandBuffer>;
 
 	class CommandBuffer : public Infrastructure
 	{

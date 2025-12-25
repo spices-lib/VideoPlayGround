@@ -4,6 +4,13 @@
 
 namespace PlayGround::Vulkan {
 
+	namespace {
+	
+		constexpr uint32_t MaxStdVPSCount = 16;
+		constexpr uint32_t MaxStdSPSCount = 32;
+		constexpr uint32_t MaxStdPPSCount = 256;
+	}					   
+		
 	VideoSession::VideoSession(Context& context)
 		 : ContextAccessor(context) 
 	{
@@ -104,9 +111,9 @@ namespace PlayGround::Vulkan {
 
 		VkVideoDecodeH265SessionParametersCreateInfoKHR    decodeH265CreateInfo {};
 		decodeH265CreateInfo.sType                       = VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR;
-		decodeH265CreateInfo.maxStdVPSCount              = 16;
-		decodeH265CreateInfo.maxStdSPSCount              = 32;
-		decodeH265CreateInfo.maxStdPPSCount              = 256;
+		decodeH265CreateInfo.maxStdVPSCount              = MaxStdVPSCount;
+		decodeH265CreateInfo.maxStdSPSCount              = MaxStdSPSCount;
+		decodeH265CreateInfo.maxStdPPSCount              = MaxStdPPSCount;
 		decodeH265CreateInfo.pParametersAddInfo          = &decodeH265AddInfo;
 		decodeH265CreateInfo.pNext                       = nullptr;
 
@@ -133,7 +140,7 @@ namespace PlayGround::Vulkan {
 
 		StdVideoH265PictureParameterSet pps{};
 		// parse and populate PPS parameters
-
+		
 		VkVideoSessionParametersUpdateInfoKHR              updateInfo {};
 		updateInfo.sType                                 = VK_STRUCTURE_TYPE_VIDEO_SESSION_PARAMETERS_UPDATE_INFO_KHR;
 		updateInfo.updateSequenceCount                   = 1;

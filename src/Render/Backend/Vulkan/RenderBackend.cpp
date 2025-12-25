@@ -17,6 +17,9 @@
 #include "World/Scene/Scene.h"
 #include "World/Component/ClockComponent.h"
 #include "Render/Backend/Vulkan/RHIResource/VideoSession.h"
+#include <imgui.h>
+#include <backends/imgui_impl_vulkan.h>
+#include <backends/imgui_impl_glfw.h>
 
 namespace PlayGround::Vulkan {
 
@@ -42,21 +45,33 @@ namespace PlayGround::Vulkan {
         m_Context->Registry<IComputeQueueSemaphore>(MaxFrameInFlight);
         m_Context->Registry<IComputeFence>(MaxFrameInFlight);
 
+		m_Context->Registry<IVideoEncodeQueueSemaphore>(MaxFrameInFlight);
+		m_Context->Registry<IVideoEncodeFence>(MaxFrameInFlight);
+
         m_Context->Registry<IGraphicCommandPool>(m_Context->Get<IPhysicalDevice>()->GetQueueFamilies().graphic.value());
         m_Context->Registry<IGraphicCommandBuffer>(m_Context->Get<IGraphicCommandPool>()->Handle(), VK_COMMAND_BUFFER_LEVEL_PRIMARY, MaxFrameInFlight);
 
         m_Context->Registry<IComputeCommandPool>(m_Context->Get<IPhysicalDevice>()->GetQueueFamilies().compute.value());
         m_Context->Registry<IComputeCommandBuffer>(m_Context->Get<IComputeCommandPool>()->Handle(), VK_COMMAND_BUFFER_LEVEL_PRIMARY, MaxFrameInFlight);
+
+		m_Context->Registry<IVideoEncodeCommandPool>(m_Context->Get<IPhysicalDevice>()->GetQueueFamilies().videoEncode.value());
+		m_Context->Registry<IVideoEncodeCommandBuffer>(m_Context->Get<IVideoEncodeCommandPool>()->Handle(), VK_COMMAND_BUFFER_LEVEL_PRIMARY, MaxFrameInFlight);
     }
 
     RenderBackend::~RenderBackend()
     {
+		m_Context->UnRegistry<IVideoEncodeCommandBuffer>();
+		m_Context->UnRegistry<IVideoEncodeCommandPool>();
+
         m_Context->UnRegistry<IComputeCommandBuffer>();
         m_Context->UnRegistry<IComputeCommandPool>();
         
         m_Context->UnRegistry<IGraphicCommandBuffer>();
         m_Context->UnRegistry<IGraphicCommandPool>();
         
+		m_Context->UnRegistry<IVideoEncodeFence>();
+		m_Context->UnRegistry<IVideoEncodeQueueSemaphore>();
+
         m_Context->UnRegistry<IComputeFence>();
         m_Context->UnRegistry<IComputeQueueSemaphore>();
 
@@ -94,6 +109,8 @@ namespace PlayGround::Vulkan {
 		auto& clock = scene->GetComponent<ClockComponent>(scene->GetRoot()).GetClock();
 
 		{
+			m_Context->Get<IVideoEncodeFence>()->Wait(clock.m_FrameIndex);
+
 			m_Context->Get<IComputeFence>()->Wait(clock.m_FrameIndex);
 
 			m_Context->Get<IGraphicFence>()->Wait(clock.m_FrameIndex);
@@ -112,6 +129,8 @@ namespace PlayGround::Vulkan {
 			beginInfo.flags            = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 			beginInfo.pInheritanceInfo = nullptr;
 
+			m_Context->Get<IVideoEncodeCommandBuffer>()->Begin(beginInfo, clock.m_FrameIndex);
+
             m_Context->Get<IComputeCommandBuffer>()->Begin(beginInfo, clock.m_FrameIndex);
 
             beginInfo.flags |= VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
@@ -124,15 +143,39 @@ namespace PlayGround::Vulkan {
 		auto& clock = scene->GetComponent<ClockComponent>(scene->GetRoot()).GetClock();
 
 		{
+			m_Context->Get<IVideoEncodeCommandBuffer>()->End(clock.m_FrameIndex);
+
 			m_Context->Get<IComputeCommandBuffer>()->End(clock.m_FrameIndex);
 
 			m_Context->Get<IGraphicCommandBuffer>()->End(clock.m_FrameIndex);
 		}
 
 		{
-			DEBUGUTILS_BEGINQUEUELABEL(m_Context->Get<IComputeQueue>()->Handle(), "MainComputeQueue")
+			DEBUGUTILS_BEGINQUEUELABEL(m_Context->Get<IVideoEncodeQueue>()->Handle(), "MainVideoEncodeQueue")
 
 			VkSemaphore waitSemphores[]          = { m_Context->Get<IGraphicImageSemaphore>()->Handle(clock.m_FrameIndex) };
+			VkSemaphore signalSemaphores[]       = { m_Context->Get<IVideoEncodeQueueSemaphore>()->Handle(clock.m_FrameIndex) };
+			VkPipelineStageFlags waitStages[]    = { VK_PIPELINE_STAGE_NONE };
+
+			VkSubmitInfo                           submitInfo{};
+			submitInfo.sType                     = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+			submitInfo.waitSemaphoreCount        = 1;
+			submitInfo.pWaitSemaphores           = waitSemphores;
+			submitInfo.pWaitDstStageMask         = waitStages;
+			submitInfo.commandBufferCount        = 1;
+			submitInfo.pCommandBuffers           = &m_Context->Get<IVideoEncodeCommandBuffer>()->Handle(clock.m_FrameIndex);
+			submitInfo.signalSemaphoreCount      = 1;
+			submitInfo.pSignalSemaphores         = signalSemaphores;
+
+			m_Context->Get<IVideoEncodeQueue>()->Submit(submitInfo, m_Context->Get<IVideoEncodeFence>()->Handle(clock.m_FrameIndex));
+
+			DEBUGUTILS_ENDQUEUELABEL(m_Context->Get<IVideoEncodeQueue>()->Handle())
+		}
+
+		{
+			DEBUGUTILS_BEGINQUEUELABEL(m_Context->Get<IComputeQueue>()->Handle(), "MainComputeQueue")
+
+			VkSemaphore waitSemphores[]          = { m_Context->Get<IVideoEncodeQueueSemaphore>()->Handle(clock.m_FrameIndex) };
 			VkSemaphore signalSemaphores[]       = { m_Context->Get<IComputeQueueSemaphore>()->Handle(clock.m_FrameIndex) };
 			VkPipelineStageFlags waitStages[]    = { VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT };
 
@@ -195,37 +238,93 @@ namespace PlayGround::Vulkan {
 
     void RenderBackend::RenderFrame(Scene* scene)
     {
+		/*auto& clock = scene->GetComponent<ClockComponent>(scene->GetRoot()).GetClock();
+
 		VideoSession session(*m_Context);
+
 		session.CreateVideoSession();
 
 		session.CreateVideoSessionParameters();
 
 		session.UpdateVideoSessionParameters();
 
-       /* vkCmdBeginVideoCodingKHR();
+		VkVideoBeginCodingInfoKHR                    encodeBeginInfo{};
+		encodeBeginInfo.sType                      = VK_STRUCTURE_TYPE_VIDEO_BEGIN_CODING_INFO_KHR;
+		encodeBeginInfo.videoSession               = session.Handle();
+		encodeBeginInfo.videoSessionParameters     = session.Parameters();
+		encodeBeginInfo.referenceSlotCount         = 0;
+		encodeBeginInfo.pReferenceSlots            = 0;
+		encodeBeginInfo.pNext                      = nullptr;
+
+        GetContext().Get<IFunctions>()->vkCmdBeginVideoCodingKHR(GetContext().Get<IVideoEncodeCommandBuffer>()->Handle(clock.m_FrameIndex), &encodeBeginInfo);
 
 		StdVideoDecodeH265PictureInfo stdPictureInfo = {};
 
-		VkVideoDecodeH265PictureInfoKHR decodeH265PictureInfo = {
-			.sType = VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PICTURE_INFO_KHR,
-			.pNext = NULL,
-			.pStdPictureInfo = &stdPictureInfo,
-			.sliceSegmentCount = 
-			.pSliceSegmentOffsets =
-		};
+		uint32_t offset = 0;
 
-		VkVideoDecodeInfoKHR decodeInfo = {
-			.sType = VK_STRUCTURE_TYPE_VIDEO_DECODE_INFO_KHR,
-			.pNext = &decodeH265PictureInfo,
-			.pSetupReferenceSlot = NULL,
-			.referenceSlotCount = 0,
-			.pReferenceSlots = NULL
-		};
+		VkVideoDecodeH265PictureInfoKHR              decodeH265PictureInfo{};
+		decodeH265PictureInfo.sType                = VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PICTURE_INFO_KHR;
+		decodeH265PictureInfo.pStdPictureInfo      = &stdPictureInfo;
+		decodeH265PictureInfo.sliceSegmentCount    = 1;
+		decodeH265PictureInfo.pSliceSegmentOffsets = &offset;
+		decodeH265PictureInfo.pNext                = nullptr;
 
-		vkCmdDecodeVideoKHR(commandBuffer, &decodeInfo);
+		VkVideoDecodeInfoKHR                         decodeInfo{};
+		decodeInfo.sType                           = VK_STRUCTURE_TYPE_VIDEO_DECODE_INFO_KHR;
+		decodeInfo.pSetupReferenceSlot             = nullptr;
+		decodeInfo.referenceSlotCount              = 0;
+		decodeInfo.pReferenceSlots                 = nullptr;
+		decodeInfo.srcBuffer                       = nullptr;
+		decodeInfo.dstPictureResource              = {};
+		decodeInfo.pNext                           = &decodeH265PictureInfo;
 
-		vkCmdEndVideoCodingKHR(commandBuffer,);*/
+		GetContext().Get<IFunctions>()->vkCmdDecodeVideoKHR(GetContext().Get<IVideoEncodeCommandBuffer>()->Handle(clock.m_FrameIndex), &decodeInfo);
+
+		VkVideoEndCodingInfoKHR                      decodeEndInfo{};
+		decodeEndInfo.sType                        = VK_STRUCTURE_TYPE_VIDEO_END_CODING_INFO_KHR;
+
+		GetContext().Get<IFunctions>()->vkCmdEndVideoCodingKHR(GetContext().Get<IVideoEncodeCommandBuffer>()->Handle(clock.m_FrameIndex), &decodeEndInfo);*/
     }
+
+	void RenderBackend::Wait()
+	{
+		m_Context->Get<IDevice>()->Wait();
+	}
+
+	void RenderBackend::InitSlateModule()
+	{
+		ImGui::CreateContext();
+
+		ImGuiIO& io = ImGui::GetIO();
+
+		io.IniFilename = "Layout.ini";
+		io.LogFilename = nullptr;
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
+		ImGui_ImplGlfw_InitForVulkan(static_cast<GLFWwindow*>(m_Window->NativeWindow()), true);
+
+		ImGui_ImplVulkan_InitInfo             init_info{};
+		init_info.Instance                  = m_Context->Get<IInstance>()->Handle();
+		init_info.PhysicalDevice            = m_Context->Get<IPhysicalDevice>()->Handle();
+		init_info.Device                    = m_Context->Get<IDevice>()->Handle();
+		init_info.QueueFamily               = m_Context->Get<IPhysicalDevice>()->GetQueueFamilies().graphic.value();
+		init_info.Queue                     = m_Context->Get<IGraphicQueue>()->Handle();
+		init_info.PipelineCache             = VK_NULL_HANDLE;
+		init_info.DescriptorPool            = nullptr;
+		init_info.RenderPass                = nullptr;
+		init_info.Subpass                   = 0;
+		init_info.MinImageCount             = MaxFrameInFlight;
+		init_info.ImageCount                = MaxFrameInFlight;
+		init_info.MSAASamples               = VK_SAMPLE_COUNT_1_BIT;
+		init_info.Allocator                 = VK_NULL_HANDLE;
+		init_info.CheckVkResultFn           = [](VkResult result) { VK_CHECK(result); };
+
+		ImGui_ImplVulkan_Init(&init_info);
+
+		ImGui_ImplVulkan_CreateFontsTexture();
+	}
 
 	void RenderBackend::RecreateSwapChain()
 	{

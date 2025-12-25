@@ -1,7 +1,10 @@
 ﻿#include "World.h"
 #include "World/Scene/Scene.h"
+#include "Core/Event/EngineEvent.h"
 #include "EditorWorld.h"
+#include "Slate/Slate.h"
 #include <sstream>
+#include <ranges>
 
 namespace PlayGround {
 
@@ -14,6 +17,27 @@ namespace PlayGround {
     {
         static auto s_World = CreateWorld();
         return s_World;
+    }
+
+    void World::OnAttached()
+    {
+        EngineEvent event(EngineEventBit::InitSlateModule);
+
+        Event::GetEventCallbackFn()(event);
+    }
+
+    void World::OnLayout()
+    {
+        std::for_each(m_Slates.begin(), m_Slates.end(), [](const auto& slate){
+            slate->OnTick();
+        });
+    }
+
+    void World::OnEvent(Event& e)
+    {
+        std::for_each(m_Slates.begin(), m_Slates.end(), [&](const auto& slate) {
+            slate->OnEvent(e);
+        });
     }
 
     Scene* World::CreateScene(const std::string& name)

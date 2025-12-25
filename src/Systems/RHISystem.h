@@ -16,6 +16,11 @@ namespace PlayGround {
         void OnSystemInitialize() override;
         void OnSystemShutDown() override;
         void Tick() override;
+        void OnEvent(Event& event) override;
+
+    private:
+
+        bool OnEngineEvent(class EngineEvent& e);
 
     private:
 

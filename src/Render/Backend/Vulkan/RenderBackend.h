@@ -23,6 +23,10 @@ namespace PlayGround::Vulkan {
 
         void RenderFrame(class Scene* scene) override;
 
+        void Wait() override;
+
+        void InitSlateModule() override;
+
     private:
 
         void RecreateSwapChain() override;

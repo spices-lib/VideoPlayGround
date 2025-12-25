@@ -17,6 +17,8 @@ namespace PlayGround::Vulkan {
 
 		const VkDevice& Handle() { return m_Device.GetHandle(); }
 
+		void Wait();
+
 	private:
 
 		void Create();

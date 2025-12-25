@@ -6,8 +6,9 @@
 
 namespace PlayGround::Vulkan {
 
-	using IGraphicFence = InfrastructureClass<class Fence, EInfrastructure::GraphicFence>;
-	using IComputeFence = InfrastructureClass<class Fence, EInfrastructure::ComputeFence>;
+	using IGraphicFence     = InfrastructureClass<class Fence, EInfrastructure::GraphicFence>;
+	using IComputeFence     = InfrastructureClass<class Fence, EInfrastructure::ComputeFence>;
+	using IVideoEncodeFence = InfrastructureClass<class Fence, EInfrastructure::VideoEncodeFence>;
 
 	class Fence : public Infrastructure
 	{

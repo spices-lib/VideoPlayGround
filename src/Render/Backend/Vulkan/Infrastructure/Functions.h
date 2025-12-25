@@ -105,6 +105,9 @@ namespace PlayGround::Vulkan {
 		VK_FUNCTION_POINTER(vkBindVideoSessionMemoryKHR                     )
 		VK_FUNCTION_POINTER(vkCreateVideoSessionKHR                         )
 		VK_FUNCTION_POINTER(vkDestroyVideoSessionKHR                        )
+		VK_FUNCTION_POINTER(vkCmdBeginVideoCodingKHR                        )
+		VK_FUNCTION_POINTER(vkCmdDecodeVideoKHR                             )
+		VK_FUNCTION_POINTER(vkCmdEndVideoCodingKHR                          )
 	};
 	
 }

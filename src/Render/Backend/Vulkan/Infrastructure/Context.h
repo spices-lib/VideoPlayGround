@@ -35,11 +35,17 @@ namespace PlayGround::Vulkan {
         ComputeQueueSemaphore,
         ComputeFence,
 
+        VideoEncodeQueueSemaphore,
+        VideoEncodeFence,
+
         GraphicCommandPool,
         GraphicCommandBuffer,
 
         ComputeCommandPool,
         ComputeCommandBuffer,
+
+        VideoEncodeCommandPool,
+        VideoEncodeCommandBuffer,
 
         DescriptorPool,
 

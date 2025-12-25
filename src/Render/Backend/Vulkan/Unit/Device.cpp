@@ -26,4 +26,9 @@ namespace PlayGround::Vulkan::Unit {
 
 		return queue;
 	}
+
+	void Device::Wait()
+	{
+		VK_CHECK(vkDeviceWaitIdle(m_Handle));
+	}
 }

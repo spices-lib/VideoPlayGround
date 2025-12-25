@@ -14,8 +14,11 @@ namespace PlayGround::Vulkan {
 		~Image() = default;
 
 		void SetImage(VkImage image);
+
 		void CreateImageView(VkDevice device, VkImageViewCreateInfo& info);
+
 		void CreateSampler(VkDevice device, VkSamplerCreateInfo& info);
+
 		void SetName(const std::string& name);
 
 	private:

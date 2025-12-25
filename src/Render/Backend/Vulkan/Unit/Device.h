@@ -17,6 +17,9 @@ namespace PlayGround::Vulkan::Unit {
 		~Device() override;
 
 		void CreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo* createInfo);
+
 		VkQueue GetDeviceQueue(uint32_t queueFamilyIndex, uint32_t queueIndex);
+
+		void Wait();
 	};
 }

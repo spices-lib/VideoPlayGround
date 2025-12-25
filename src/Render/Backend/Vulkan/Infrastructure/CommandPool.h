@@ -5,8 +5,9 @@
 
 namespace PlayGround::Vulkan {
 
-	using IGraphicCommandPool = InfrastructureClass<class CommandPool, EInfrastructure::GraphicCommandPool>;
-	using IComputeCommandPool = InfrastructureClass<class CommandPool, EInfrastructure::ComputeCommandPool>;
+	using IGraphicCommandPool     = InfrastructureClass<class CommandPool, EInfrastructure::GraphicCommandPool>;
+	using IComputeCommandPool     = InfrastructureClass<class CommandPool, EInfrastructure::ComputeCommandPool>;
+	using IVideoEncodeCommandPool = InfrastructureClass<class CommandPool, EInfrastructure::VideoEncodeCommandPool>;
 
 	class CommandPool : public Infrastructure
 	{

@@ -15,10 +15,6 @@ namespace PlayGround::Editor {
         void OnAttached() override;
 
         void OnDetached() override {}
-        
-    protected:
-        
-        void Layout() override;
 
     private:
 

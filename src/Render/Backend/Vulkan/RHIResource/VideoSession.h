@@ -18,6 +18,8 @@ namespace PlayGround::Vulkan {
 
 		const VkVideoSessionKHR& Handle() { return m_VideoSession.GetHandle(); }
 
+		const VkVideoSessionParametersKHR& Parameters() { return m_VideoSessionParameters.GetHandle(); }
+
 		void CreateVideoSession();
 
 		void CreateVideoSessionParameters();
