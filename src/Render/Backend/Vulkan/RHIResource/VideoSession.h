@@ -1,0 +1,33 @@
+#pragma once
+#include "Core/Core.h"
+#include "Render/Backend/Vulkan/Utils.h"
+#include "Render/Backend/Vulkan/Unit/VideoSession.h"
+#include "Render/Backend/Vulkan/Unit/VideoSessionParameters.h"
+#include <array>
+
+namespace PlayGround::Vulkan {
+
+	constexpr uint32_t MAX_BOUND_MEMORY = 16;
+
+	class VideoSession : public ContextAccessor
+	{
+	public:
+
+		VideoSession(Context& context);
+		~VideoSession() = default;
+
+		const VkVideoSessionKHR& Handle() { return m_VideoSession.GetHandle(); }
+
+		void CreateVideoSession();
+
+		void CreateVideoSessionParameters();
+
+		void UpdateVideoSessionParameters();
+
+	private:
+
+		Unit::VideoSession                              m_VideoSession;
+		std::array<VkDeviceMemory, MAX_BOUND_MEMORY>    m_Memorys{};
+		Unit::VideoSessionParameters                    m_VideoSessionParameters;
+	};
+}

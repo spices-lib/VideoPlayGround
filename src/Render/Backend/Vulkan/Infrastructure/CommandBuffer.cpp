@@ -29,12 +29,12 @@ namespace PlayGround::Vulkan {
         }
     }
 
-    void CommandBuffer::Begin(const VkCommandBufferBeginInfo& info, uint32_t index)
+    void CommandBuffer::Begin(const VkCommandBufferBeginInfo& info, uint32_t index) const
     {
         m_CommandBuffers[index]->Begin(info);
     }
 
-    void CommandBuffer::End(uint32_t index)
+    void CommandBuffer::End(uint32_t index) const
     {
         m_CommandBuffers[index]->End();
     }

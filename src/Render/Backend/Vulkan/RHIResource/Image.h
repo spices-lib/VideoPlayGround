@@ -1,5 +1,4 @@
 #include "Core/Core.h"
-#include "Render/Backend/Vulkan/Infrastructure/ContextAccessor.h"
 #include "Render/Backend/Vulkan/Utils.h"
 #include "Render/Backend/Vulkan/Unit/Image.h"
 #include "Render/Backend/Vulkan/Unit/ImageView.h"

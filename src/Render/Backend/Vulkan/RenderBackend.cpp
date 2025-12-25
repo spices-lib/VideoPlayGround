@@ -16,6 +16,7 @@
 #include "Window/Window.h"
 #include "World/Scene/Scene.h"
 #include "World/Component/ClockComponent.h"
+#include "Render/Backend/Vulkan/RHIResource/VideoSession.h"
 
 namespace PlayGround::Vulkan {
 
@@ -69,6 +70,7 @@ namespace PlayGround::Vulkan {
         m_Context->UnRegistry<IComputeThreadQueue>();
         m_Context->UnRegistry<IGraphicThreadQueue>();
         
+		m_Context->UnRegistry<IVideoEncodeQueue>();
         m_Context->UnRegistry<ITransferQueue>();
         m_Context->UnRegistry<IComputeQueue>();
         m_Context->UnRegistry<IPresentQueue>();
@@ -98,8 +100,6 @@ namespace PlayGround::Vulkan {
 		}
 
 		{
-			
-
 			if (!m_Context->Get<ISwapChain>()->GetNextImage(m_Context->Get<IGraphicImageSemaphore>()->Handle(clock.m_FrameIndex), clock.m_ImageIndex))
 			{
 				RecreateSwapChain();
@@ -195,7 +195,36 @@ namespace PlayGround::Vulkan {
 
     void RenderBackend::RenderFrame(Scene* scene)
     {
+		VideoSession session(*m_Context);
+		session.CreateVideoSession();
 
+		session.CreateVideoSessionParameters();
+
+		session.UpdateVideoSessionParameters();
+
+       /* vkCmdBeginVideoCodingKHR();
+
+		StdVideoDecodeH265PictureInfo stdPictureInfo = {};
+
+		VkVideoDecodeH265PictureInfoKHR decodeH265PictureInfo = {
+			.sType = VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PICTURE_INFO_KHR,
+			.pNext = NULL,
+			.pStdPictureInfo = &stdPictureInfo,
+			.sliceSegmentCount = 
+			.pSliceSegmentOffsets =
+		};
+
+		VkVideoDecodeInfoKHR decodeInfo = {
+			.sType = VK_STRUCTURE_TYPE_VIDEO_DECODE_INFO_KHR,
+			.pNext = &decodeH265PictureInfo,
+			.pSetupReferenceSlot = NULL,
+			.referenceSlotCount = 0,
+			.pReferenceSlots = NULL
+		};
+
+		vkCmdDecodeVideoKHR(commandBuffer, &decodeInfo);
+
+		vkCmdEndVideoCodingKHR(commandBuffer,);*/
     }
 
 	void RenderBackend::RecreateSwapChain()

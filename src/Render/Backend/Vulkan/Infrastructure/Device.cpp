@@ -20,10 +20,11 @@ namespace PlayGround::Vulkan {
 
 		std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::vector<VkQueue>>> queueFamilies;
 
-		queueFamilies[queueFaimilies.graphic .value()][0] = std::vector<VkQueue>(1 + NThreadQueue, VK_NULL_HANDLE);
-		queueFamilies[queueFaimilies.present .value()][1] = std::vector<VkQueue>(1,                VK_NULL_HANDLE);
-		queueFamilies[queueFaimilies.compute .value()][2] = std::vector<VkQueue>(1 + NThreadQueue, VK_NULL_HANDLE);
-		queueFamilies[queueFaimilies.transfer.value()][3] = std::vector<VkQueue>(1,                VK_NULL_HANDLE);
+		queueFamilies[queueFaimilies.graphic .value()][0]    = std::vector<VkQueue>(1 + NThreadQueue, VK_NULL_HANDLE);
+		queueFamilies[queueFaimilies.present .value()][1]    = std::vector<VkQueue>(1,                VK_NULL_HANDLE);
+		queueFamilies[queueFaimilies.compute .value()][2]    = std::vector<VkQueue>(1 + NThreadQueue, VK_NULL_HANDLE);
+		queueFamilies[queueFaimilies.transfer.value()][3]    = std::vector<VkQueue>(1,                VK_NULL_HANDLE);
+		queueFamilies[queueFaimilies.videoEncode.value()][4] = std::vector<VkQueue>(1,                VK_NULL_HANDLE);
 
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 		std::vector<std::shared_ptr<std::vector<float>>> QueuePriorities;
@@ -38,10 +39,10 @@ namespace PlayGround::Vulkan {
 			std::shared_ptr<std::vector<float>> queuePriority = std::make_shared<std::vector<float>>(count, 1.0f);
 
 			VkDeviceQueueCreateInfo                               queueCreateInfo{};
-			queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-			queueCreateInfo.queueFamilyIndex = family;
-			queueCreateInfo.queueCount = count;
-			queueCreateInfo.pQueuePriorities = queuePriority->data();
+			queueCreateInfo.sType                               = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queueCreateInfo.queueFamilyIndex                    = family;
+			queueCreateInfo.queueCount                          = count;
+			queueCreateInfo.pQueuePriorities                    = queuePriority->data();
 
 			QueuePriorities.push_back(queuePriority);
 			queueCreateInfos.push_back(queueCreateInfo);
@@ -88,17 +89,19 @@ namespace PlayGround::Vulkan {
 
 #else // Split Commands to different Queues.
 
-		auto graphic  = queueFamilies[queueFaimilies.graphic .value()][0][0];
-		auto present  = queueFamilies[queueFaimilies.present .value()][0][0];
-		auto compute  = queueFamilies[queueFaimilies.compute .value()][2][0];
-		auto transfer = queueFamilies[queueFaimilies.transfer.value()][3][0];
+		auto graphic     = queueFamilies[queueFaimilies.graphic    .value()][0][0];
+		auto present     = queueFamilies[queueFaimilies.present    .value()][0][0];
+		auto compute     = queueFamilies[queueFaimilies.compute    .value()][2][0];
+		auto transfer    = queueFamilies[queueFaimilies.transfer   .value()][3][0];
+		auto videoEncode = queueFamilies[queueFaimilies.videoEncode.value()][4][0];
 
 #endif
 
-		GetContext().Registry<IGraphicQueue> (graphic);
-		GetContext().Registry<IPresentQueue> (present);
-		GetContext().Registry<IComputeQueue> (compute);
-		GetContext().Registry<ITransferQueue>(transfer);
+		GetContext().Registry<IGraphicQueue>    (graphic);
+		GetContext().Registry<IPresentQueue>    (present);
+		GetContext().Registry<IComputeQueue>    (compute);
+		GetContext().Registry<ITransferQueue>   (transfer);
+		GetContext().Registry<IVideoEncodeQueue>(videoEncode);
 
 		/*DEBUGUTILS_SETOBJECTNAME(m_Context.Get<IGraphicQueue>() , "GraphicQueue")
 		DEBUGUTILS_SETOBJECTNAME(m_Context.Get<IPresentQueue>() , "PresentQueue")

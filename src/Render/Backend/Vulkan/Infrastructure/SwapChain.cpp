@@ -22,7 +22,7 @@ namespace PlayGround::Vulkan {
 	void SwapChain::Create(GLFWwindow* window, uint32_t count)
     {
 		auto physicalDevice = GetContext().Get<IPhysicalDevice>();
-		auto property = physicalDevice->QuerySwapChainSupport(window);
+		auto property = physicalDevice->QuerySwapChainProperty(window);
 
         VkSwapchainCreateInfoKHR                 createInfo{};
 		createInfo.sType                       = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;

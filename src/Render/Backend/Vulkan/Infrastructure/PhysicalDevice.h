@@ -14,14 +14,15 @@ namespace PlayGround::Vulkan {
 		std::optional<uint32_t> present;
 		std::optional<uint32_t> transfer;
 		std::optional<uint32_t> compute;
+		std::optional<uint32_t> videoEncode;
 
 		bool isComplete() const
 		{
-			return graphic.has_value() && present.has_value() && transfer.has_value() && compute.has_value();
+			return graphic.has_value() && present.has_value() && transfer.has_value() && compute.has_value() && videoEncode.has_value();
 		}
 	};
 
-	struct SwapChainpProperty
+	struct SwapChainProperty
 	{
 		VkSurfaceCapabilitiesKHR        capabilities;
 		std::vector<VkSurfaceFormatKHR> formats;
@@ -30,6 +31,13 @@ namespace PlayGround::Vulkan {
 		VkPresentModeKHR                presentMode;
 		VkExtent2D                      surfaceSize;
 		VkExtent2D                      viewPortSize = { 1280, 960 };
+	};
+
+	struct VideoSessionProperty
+	{
+		VkVideoCapabilitiesKHR          capabilities;
+		VkFormat                        dpbFormat;
+		VkFormat                        dstFormat;
 	};
 
 	using IPhysicalDevice = InfrastructureClass<class PhysicalDevice, EInfrastructure::PhysicalDevice>;
@@ -50,7 +58,9 @@ namespace PlayGround::Vulkan {
 
 		const VkPhysicalDeviceProperties& GetProperties() { return m_Properties; };
 
-		SwapChainpProperty QuerySwapChainSupport(GLFWwindow* window);
+		SwapChainProperty QuerySwapChainProperty(GLFWwindow* window);
+
+		VideoSessionProperty QueryVideoSessionProperty(const std::vector<VkVideoProfileInfoKHR>& videoProfiles);
 
 	private:
 
@@ -65,6 +75,8 @@ namespace PlayGround::Vulkan {
 		bool IsFeatureMeetDemand(const VkPhysicalDevice& device);
 
 		bool IsQueueMeetDemand(const VkPhysicalDevice& device, const VkSurfaceKHR& surface);
+
+		std::vector<VkFormat> GetVideoFormats(VkImageUsageFlags imageUsage, const std::vector<VkVideoProfileInfoKHR>& videoProfile);
 
 	private:
 

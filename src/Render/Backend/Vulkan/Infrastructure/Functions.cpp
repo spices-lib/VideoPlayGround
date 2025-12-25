@@ -51,5 +51,15 @@ namespace PlayGround::Vulkan {
 
 		EXPLAIN_VK_FUNCTION_POINTER(vkCopyMemoryToImageEXT                          )
 		EXPLAIN_VK_FUNCTION_POINTER(vkCopyImageToMemoryEXT                          )
+
+		EXPLAIN_VK_FUNCTION_POINTER(vkGetPhysicalDeviceVideoCapabilitiesKHR         )
+		EXPLAIN_VK_FUNCTION_POINTER(vkCreateVideoSessionParametersKHR               )
+		EXPLAIN_VK_FUNCTION_POINTER(vkDestroyVideoSessionParametersKHR              )
+		EXPLAIN_VK_FUNCTION_POINTER(vkUpdateVideoSessionParametersKHR               )
+		EXPLAIN_VK_FUNCTION_POINTER(vkGetPhysicalDeviceVideoFormatPropertiesKHR     )
+		EXPLAIN_VK_FUNCTION_POINTER(vkGetVideoSessionMemoryRequirementsKHR          )
+		EXPLAIN_VK_FUNCTION_POINTER(vkBindVideoSessionMemoryKHR                     )
+		EXPLAIN_VK_FUNCTION_POINTER(vkCreateVideoSessionKHR                         )
+		EXPLAIN_VK_FUNCTION_POINTER(vkDestroyVideoSessionKHR                        )
 	}
 }

@@ -8,7 +8,12 @@ namespace PlayGround::Vulkan {
 	PFN_##function function;
 
 #define EXPLAIN_VK_FUNCTION_POINTER(function)  \
-	function = reinterpret_cast<PFN_##function>(vkGetInstanceProcAddr(instance, #function));
+	function = reinterpret_cast<PFN_##function>(vkGetInstanceProcAddr(instance, #function));  \
+	if(!function){                                                                            \
+		std::stringstream ss;                                                                 \
+		ss << "Vulkan Function: " << #function << " Not found.";                              \
+		CORE_ERROR(ss.str())                                                                  \
+	}
 
 	using IFunctions = InfrastructureClass<class Functions, EInfrastructure::Functions>;
 
@@ -87,6 +92,19 @@ namespace PlayGround::Vulkan {
 		*/
 		VK_FUNCTION_POINTER(vkCopyMemoryToImageEXT                          )
 		VK_FUNCTION_POINTER(vkCopyImageToMemoryEXT                          )
+
+		/**
+		* @brief Video Capabilities query..
+		*/
+		VK_FUNCTION_POINTER(vkGetPhysicalDeviceVideoCapabilitiesKHR         )
+		VK_FUNCTION_POINTER(vkCreateVideoSessionParametersKHR               )
+		VK_FUNCTION_POINTER(vkDestroyVideoSessionParametersKHR              )
+		VK_FUNCTION_POINTER(vkUpdateVideoSessionParametersKHR               )
+		VK_FUNCTION_POINTER(vkGetPhysicalDeviceVideoFormatPropertiesKHR     )
+		VK_FUNCTION_POINTER(vkGetVideoSessionMemoryRequirementsKHR          )
+		VK_FUNCTION_POINTER(vkBindVideoSessionMemoryKHR                     )
+		VK_FUNCTION_POINTER(vkCreateVideoSessionKHR                         )
+		VK_FUNCTION_POINTER(vkDestroyVideoSessionKHR                        )
 	};
 	
 }

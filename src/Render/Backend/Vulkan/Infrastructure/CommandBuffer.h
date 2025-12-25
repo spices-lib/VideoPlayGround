@@ -19,9 +19,9 @@ namespace PlayGround::Vulkan {
 
 		const VkCommandBuffer& Handle(uint32_t index = 0) { return m_CommandBuffers[index]->GetHandle(); }
 
-		void Begin(const VkCommandBufferBeginInfo& info, uint32_t index = 0);
+		void Begin(const VkCommandBufferBeginInfo& info, uint32_t index = 0) const;
 
-		void End(uint32_t index = 0);
+		void End(uint32_t index = 0) const;
 
 	private:
 

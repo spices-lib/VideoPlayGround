@@ -5,10 +5,11 @@
 
 namespace PlayGround::Vulkan {
 
-	using IGraphicQueue  = InfrastructureClass<class Queue, EInfrastructure::GraphicQueue>;
-	using IPresentQueue  = InfrastructureClass<class Queue, EInfrastructure::PresentQueue>;
-	using IComputeQueue  = InfrastructureClass<class Queue, EInfrastructure::ComputeQueue>;
-	using ITransferQueue = InfrastructureClass<class Queue, EInfrastructure::TransferQueue>;
+	using IGraphicQueue     = InfrastructureClass<class Queue, EInfrastructure::GraphicQueue>;
+	using IPresentQueue     = InfrastructureClass<class Queue, EInfrastructure::PresentQueue>;
+	using IComputeQueue     = InfrastructureClass<class Queue, EInfrastructure::ComputeQueue>;
+	using ITransferQueue    = InfrastructureClass<class Queue, EInfrastructure::TransferQueue>;
+	using IVideoEncodeQueue = InfrastructureClass<class Queue, EInfrastructure::VideoEncodeQueue>;
 
 	class Queue : public Infrastructure
 	{

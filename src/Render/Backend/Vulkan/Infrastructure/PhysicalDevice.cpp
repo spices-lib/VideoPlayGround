@@ -113,16 +113,16 @@ namespace PlayGround::Vulkan {
 	bool PhysicalDevice::IsQueueMeetDemand(const VkPhysicalDevice& device, const VkSurfaceKHR& surface)
 	{
 		uint32_t queueFamilyCount = 0;
-		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+		vkGetPhysicalDeviceQueueFamilyProperties2(device, &queueFamilyCount, nullptr);
 
-		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+		std::vector<VkQueueFamilyProperties2> queueFamilies(queueFamilyCount,{ VK_STRUCTURE_TYPE_QUEUE_FAMILY_PROPERTIES_2 });
+		vkGetPhysicalDeviceQueueFamilyProperties2(device, &queueFamilyCount, queueFamilies.data());
 
 		for (uint32_t i = 0; i < queueFamilyCount; i++) 
 		{
 			const auto& queueFamily = queueFamilies[i];
 
-			if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+			if (queueFamily.queueFamilyProperties.queueFlags & VK_QUEUE_GRAPHICS_BIT)
 			{
 				m_QueueFamilies.graphic = i;
 
@@ -137,15 +137,21 @@ namespace PlayGround::Vulkan {
 			else
 			{
 				// Get compute queue identify.
-				if (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) 
+				if (queueFamily.queueFamilyProperties.queueFlags & VK_QUEUE_COMPUTE_BIT && !m_QueueFamilies.compute.has_value()) 
 				{
 					m_QueueFamilies.compute = i;
 				}
 
 				// Get transfer queue identify.
-				if (queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT) 
+				if (queueFamily.queueFamilyProperties.queueFlags & VK_QUEUE_TRANSFER_BIT && !m_QueueFamilies.transfer.has_value()) 
 				{
 					m_QueueFamilies.transfer = i;
+				}
+
+				// Get video encode queue identify.
+				if (queueFamily.queueFamilyProperties.queueFlags & VK_QUEUE_VIDEO_DECODE_BIT_KHR && !m_QueueFamilies.videoEncode.has_value()) 
+				{
+					m_QueueFamilies.videoEncode = i;
 				}
 			}
 
@@ -155,11 +161,67 @@ namespace PlayGround::Vulkan {
 		return false;
 	}
 
-	SwapChainpProperty PhysicalDevice::QuerySwapChainSupport(GLFWwindow* window)
+	VideoSessionProperty PhysicalDevice::QueryVideoSessionProperty(const std::vector<VkVideoProfileInfoKHR>& videoProfiles)
+	{
+		VideoSessionProperty property{};
+
+		VkVideoDecodeH265ProfileInfoKHR       decodeH265ProfileInfo{};
+		decodeH265ProfileInfo.sType         = VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PROFILE_INFO_KHR;
+		decodeH265ProfileInfo.stdProfileIdc = STD_VIDEO_H265_PROFILE_IDC_MAIN;
+		decodeH265ProfileInfo.pNext         = nullptr;
+
+		VkVideoProfileInfoKHR                 profileInfo {};
+		profileInfo.sType                   = VK_STRUCTURE_TYPE_VIDEO_PROFILE_INFO_KHR;
+		profileInfo.videoCodecOperation     = VK_VIDEO_CODEC_OPERATION_DECODE_H265_BIT_KHR;
+		profileInfo.chromaSubsampling       = VK_VIDEO_CHROMA_SUBSAMPLING_420_BIT_KHR;
+		profileInfo.lumaBitDepth            = VK_VIDEO_COMPONENT_BIT_DEPTH_8_BIT_KHR;
+		profileInfo.chromaBitDepth          = VK_VIDEO_COMPONENT_BIT_DEPTH_8_BIT_KHR;
+		profileInfo.pNext                   = &decodeH265ProfileInfo;
+
+		VkVideoDecodeH265CapabilitiesKHR      decodeH265Capabilities{};
+		decodeH265Capabilities.sType        = VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_CAPABILITIES_KHR;
+		decodeH265Capabilities.pNext        = nullptr;
+
+		VkVideoDecodeCapabilitiesKHR          decodeCapabilities{};
+		decodeCapabilities.sType            = VK_STRUCTURE_TYPE_VIDEO_DECODE_CAPABILITIES_KHR;
+		decodeCapabilities.pNext            = &decodeH265Capabilities;
+
+		VkVideoCapabilitiesKHR&                capabilities = property.capabilities;
+		capabilities.sType                  = VK_STRUCTURE_TYPE_VIDEO_CAPABILITIES_KHR;
+		capabilities.pNext                  = &decodeCapabilities;
+
+		VK_CHECK(GetContext().Get<IFunctions>()->vkGetPhysicalDeviceVideoCapabilitiesKHR(Handle(), &profileInfo, &capabilities));
+
+		if (capabilities.flags & VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_COINCIDE_BIT_KHR) 
+		{
+			 // NV, Intel
+			auto dpbFormats = GetVideoFormats(VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR | VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR, videoProfiles);
+
+            property.dpbFormat = dpbFormats[0];
+            property.dstFormat = dpbFormats[0];
+		}
+		else if (capabilities.flags & VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_DISTINCT_BIT_KHR) 
+		{
+			// AMD
+			auto dpbFormats = GetVideoFormats(VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR, videoProfiles);
+            auto outFormats = GetVideoFormats(VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR, videoProfiles);
+           
+            property.dpbFormat = dpbFormats[0];
+            property.dstFormat = outFormats[0];
+		}
+		else
+		{
+            CORE_ERROR("Unsupported Decode Capability Flags.");
+        }
+
+		return property;
+	}
+
+	SwapChainProperty PhysicalDevice::QuerySwapChainProperty(GLFWwindow* window)
 	{
 		auto surface = GetContext().Get<ISurface>()->Handle();
 
-		SwapChainpProperty property{};
+		SwapChainProperty property{};
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(Handle(), surface, &property.capabilities);
 
 		if (property.capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
@@ -244,8 +306,41 @@ namespace PlayGround::Vulkan {
 			m_ExtensionProperties.push_back(VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME);
 			m_ExtensionProperties.push_back(VK_EXT_NESTED_COMMAND_BUFFER_EXTENSION_NAME);
 			m_ExtensionProperties.push_back(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
+			m_ExtensionProperties.push_back(VK_KHR_VIDEO_QUEUE_EXTENSION_NAME);
+			m_ExtensionProperties.push_back(VK_KHR_VIDEO_ENCODE_QUEUE_EXTENSION_NAME);
+			m_ExtensionProperties.push_back(VK_KHR_VIDEO_MAINTENANCE_1_EXTENSION_NAME);
+			m_ExtensionProperties.push_back(VK_KHR_VIDEO_DECODE_QUEUE_EXTENSION_NAME);
+			m_ExtensionProperties.push_back(VK_KHR_VIDEO_DECODE_H265_EXTENSION_NAME);
 		}
 
 		return m_ExtensionProperties;
+	}
+
+	std::vector<VkFormat> PhysicalDevice::GetVideoFormats(VkImageUsageFlags imageUsage, const std::vector<VkVideoProfileInfoKHR>& videoProfile)
+	{
+		VkVideoProfileListInfoKHR                videoProfiles{};
+		videoProfiles.sType                    = VK_STRUCTURE_TYPE_VIDEO_PROFILE_LIST_INFO_KHR;
+		videoProfiles.profileCount             = videoProfile.size();
+		videoProfiles.pProfiles                = videoProfile.data();
+		videoProfiles.pNext                    = nullptr;
+		
+		VkPhysicalDeviceVideoFormatInfoKHR       videoFormatInfo {};
+		videoFormatInfo.sType                  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_FORMAT_INFO_KHR;
+		videoFormatInfo.imageUsage             = imageUsage;
+		videoFormatInfo.pNext                  = &videoProfiles;
+
+		uint32_t supportedFormatCount = 0;
+        VK_CHECK(GetContext().Get<IFunctions>()->vkGetPhysicalDeviceVideoFormatPropertiesKHR(Handle(), &videoFormatInfo, &supportedFormatCount, nullptr))
+
+		std::vector<VkVideoFormatPropertiesKHR> supportedFormats(supportedFormatCount, { VK_STRUCTURE_TYPE_VIDEO_FORMAT_PROPERTIES_KHR });
+		VK_CHECK(GetContext().Get<IFunctions>()->vkGetPhysicalDeviceVideoFormatPropertiesKHR(Handle(), &videoFormatInfo, &supportedFormatCount, supportedFormats.data()))
+
+
+		std::vector<VkFormat> formats;
+		std::for_each(supportedFormats.begin(), supportedFormats.end(), [&](const auto& format){
+			formats.emplace_back(format.format);
+		});
+
+		return formats;
 	}
 }

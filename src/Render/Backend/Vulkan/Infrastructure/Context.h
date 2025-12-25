@@ -20,6 +20,7 @@ namespace PlayGround::Vulkan {
         PresentQueue,
         ComputeQueue,
         TransferQueue,
+        VideoEncodeQueue,
 
         GraphicThreadQueue,
         ComputeThreadQueue,
