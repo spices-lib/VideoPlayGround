@@ -20,6 +20,6 @@ namespace PlayGround::Vulkan::Unit {
 
 	private:
 
-		VkDevice         m_Device = VK_NULL_HANDLE;
+		VkDevice m_Device = VK_NULL_HANDLE;
 	};
 }

@@ -2,7 +2,7 @@
 #include "Core/Core.h"
 #include "Core/NonCopyable.h"
 #include "Context.h"
-#include "Render/Backend/Vulkan/Utils.h"
+#include "Render/Backend/Vulkan/Core.h"
 #include "ContextAccessor.h"
 
 namespace PlayGround::Vulkan {

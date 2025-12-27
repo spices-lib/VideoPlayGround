@@ -1,17 +1,23 @@
+#pragma once
 #include "Core/Core.h"
-#include "Render/Backend/Vulkan/Utils.h"
+#include "Render/Backend/Vulkan/Core.h"
 #include "Render/Backend/Vulkan/Unit/RenderPass.h"
 #include "Render/Backend/Vulkan/Unit/FrameBuffer.h"
+#include "Render/Frontend/RHI/RenderPass.h"
 #include <vector>
 
 namespace PlayGround::Vulkan {
 
-	class RenderPass : public ContextAccessor
+	class RenderPass : public ContextAccessor, public RHI::RenderPass::Impl
 	{
 	public:
 
-		RenderPass(Context& context) : ContextAccessor(context) {}
-		~RenderPass() = default;
+		RenderPass(Context& context) : ContextAccessor(context), RHI::RenderPass::Impl() {}
+		~RenderPass() override = default;
+
+		void AddSwapChainAttachment() override {}
+		const void* GetRHIRenderPass() override;
+		void Build() override;
 
 	private:
 

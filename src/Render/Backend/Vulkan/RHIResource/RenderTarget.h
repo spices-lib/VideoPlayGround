@@ -4,23 +4,16 @@
 #include "Render/Backend/Vulkan/Unit/Image.h"
 #include "Render/Backend/Vulkan/Unit/ImageView.h"
 #include "Render/Backend/Vulkan/Unit/Sampler.h"
+#include "Render/Frontend/RHI/RenderTarget.h"
 
 namespace PlayGround::Vulkan {
 
-	class Image : public ContextAccessor
+	class RenderTarget : public ContextAccessor, public RHI::RenderTarget::Impl
 	{
 	public:
 
-		Image(Context& context) : ContextAccessor(context) {}
-		~Image() = default;
-
-		void SetImage(VkImage image);
-
-		void CreateImageView(VkDevice device, VkImageViewCreateInfo& info);
-
-		void CreateSampler(VkDevice device, VkSamplerCreateInfo& info);
-
-		void SetName(const std::string& name);
+		RenderTarget(Context& context) : ContextAccessor(context) {}
+		~RenderTarget() = default;
 
 	private:
 

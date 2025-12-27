@@ -1,14 +1,42 @@
 #include "RenderFrontend.h"
 #include "Render/Backend/Vulkan/RenderBackend.h"
+#include "Render/FrontEnd/Pass/BasePass.h"
+#include "Render/FrontEnd/Pass/SlatePass.h"
 #include "Window/Window.h"
 #include "Core/Event/WindowEvent.h"
+#include "Render/FrontEnd/Pass/Pass.h"
 #include <GLFW/glfw3.h>
+#include "Render/Frontend/RHI/RHI.h"
+#include <algorithm>
 
 namespace PlayGround {
 
     SP<RenderFrontend> RenderFrontend::Create()
     {
-        return CreateSP<Vulkan::RenderBackend>(&Window::Instance());
+        auto sp = CreateSP<Vulkan::RenderBackend>(&Window::Instance());
+
+        RHI::RHIDelegate::SetCreator([p = sp.get()](RHI::ERHI e){ return p->CreateRHI(e); });
+
+        sp->OnInitialize();
+        
+        return sp;
+    }
+
+    RenderFrontend::~RenderFrontend()
+    {
+        RHI::RHIDelegate::SetCreator(nullptr);
+    }
+
+    void RenderFrontend::OnInitialize()
+    {
+        AddDefaultPasses();
+    }
+
+    void RenderFrontend::RenderFrame(Scene* scene)
+    {
+        std::for_each(m_RenderPasses.begin(), m_RenderPasses.end(), [&](const auto& renderPass) {
+            renderPass->OnRender(scene);
+        });
     }
 
     void RenderFrontend::RecreateSwapChain()
@@ -27,6 +55,28 @@ namespace PlayGround {
         WindowResizeOverEvent event(width, height);
 
         Event::GetEventCallbackFn()(event);
+    }
+
+    void RenderFrontend::AddDefaultPasses()
+    {
+        {
+            auto bassPass = CreateSP<Render::BasePass>();
+
+            AddPass(bassPass);
+        }
+
+        {
+            auto slatePass = CreateSP<Render::SlatePass>();
+
+            AddPass(slatePass);
+        }
+    }
+
+    void RenderFrontend::AddPass(SP<Render::Pass> pass)
+    {
+        pass->OnConstruct();
+
+        m_RenderPasses.emplace_back(pass);
     }
 
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Core.h"
 #include "Render/Frontend/RenderFrontend.h"
+#include <any>
 
 namespace PlayGround {
 
@@ -21,11 +22,11 @@ namespace PlayGround::Vulkan {
 
         void EndFrame(class Scene* scene) override;
 
-        void RenderFrame(class Scene* scene) override;
-
         void Wait() override;
 
         void InitSlateModule() override;
+
+        std::any CreateRHI(RHI::ERHI e) override;
 
     private:
 

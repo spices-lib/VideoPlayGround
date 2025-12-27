@@ -12,14 +12,24 @@
 #include "Infrastructure/DebugUtilsObject.h"
 #include "Infrastructure/CommandPool.h"
 #include "Infrastructure/CommandBuffer.h"
+#include "Infrastructure/DescriptorPool.h"
 #include "Infrastructure/Queue.h"
 #include "Window/Window.h"
 #include "World/Scene/Scene.h"
 #include "World/Component/ClockComponent.h"
 #include "Render/Backend/Vulkan/RHIResource/VideoSession.h"
+#include "Render/Frontend/Pass/SlatePass.h"
 #include <imgui.h>
 #include <backends/imgui_impl_vulkan.h>
 #include <backends/imgui_impl_glfw.h>
+#include "Render/Frontend/RHI/RenderPass.h"
+#include "Render/Backend/Vulkan/RHIResource/RenderPass.h"
+#include "Render/Backend/Vulkan/RHIResource/Descriptor.h"
+#include "Render/Backend/Vulkan/RHIResource/Pipeline.h"
+#include "Render/Backend/Vulkan/RHIResource/Shader.h"
+#include "Render/Backend/Vulkan/RHIResource/RenderTarget.h"
+#include "Render/Backend/Vulkan/RHIResource/VertexBuffer.h"
+#include "Render/Backend/Vulkan/RHIResource/IndexBuffer.h"
 
 namespace PlayGround::Vulkan {
 
@@ -56,10 +66,14 @@ namespace PlayGround::Vulkan {
 
 		m_Context->Registry<IVideoEncodeCommandPool>(m_Context->Get<IPhysicalDevice>()->GetQueueFamilies().videoEncode.value());
 		m_Context->Registry<IVideoEncodeCommandBuffer>(m_Context->Get<IVideoEncodeCommandPool>()->Handle(), VK_COMMAND_BUFFER_LEVEL_PRIMARY, MaxFrameInFlight);
+
+		m_Context->Registry<IDescriptorPool>();
     }
 
     RenderBackend::~RenderBackend()
     {
+		m_Context->UnRegistry<IDescriptorPool>();
+
 		m_Context->UnRegistry<IVideoEncodeCommandBuffer>();
 		m_Context->UnRegistry<IVideoEncodeCommandPool>();
 
@@ -236,55 +250,55 @@ namespace PlayGround::Vulkan {
 		}
     }
 
-    void RenderBackend::RenderFrame(Scene* scene)
-    {
-		/*auto& clock = scene->GetComponent<ClockComponent>(scene->GetRoot()).GetClock();
+  //  void RenderBackend::RenderFrame(Scene* scene)
+  //  {
+		///*auto& clock = scene->GetComponent<ClockComponent>(scene->GetRoot()).GetClock();
 
-		VideoSession session(*m_Context);
+		//VideoSession session(*m_Context);
 
-		session.CreateVideoSession();
+		//session.CreateVideoSession();
 
-		session.CreateVideoSessionParameters();
+		//session.CreateVideoSessionParameters();
 
-		session.UpdateVideoSessionParameters();
+		//session.UpdateVideoSessionParameters();
 
-		VkVideoBeginCodingInfoKHR                    encodeBeginInfo{};
-		encodeBeginInfo.sType                      = VK_STRUCTURE_TYPE_VIDEO_BEGIN_CODING_INFO_KHR;
-		encodeBeginInfo.videoSession               = session.Handle();
-		encodeBeginInfo.videoSessionParameters     = session.Parameters();
-		encodeBeginInfo.referenceSlotCount         = 0;
-		encodeBeginInfo.pReferenceSlots            = 0;
-		encodeBeginInfo.pNext                      = nullptr;
+		//VkVideoBeginCodingInfoKHR                    encodeBeginInfo{};
+		//encodeBeginInfo.sType                      = VK_STRUCTURE_TYPE_VIDEO_BEGIN_CODING_INFO_KHR;
+		//encodeBeginInfo.videoSession               = session.Handle();
+		//encodeBeginInfo.videoSessionParameters     = session.Parameters();
+		//encodeBeginInfo.referenceSlotCount         = 0;
+		//encodeBeginInfo.pReferenceSlots            = 0;
+		//encodeBeginInfo.pNext                      = nullptr;
 
-        GetContext().Get<IFunctions>()->vkCmdBeginVideoCodingKHR(GetContext().Get<IVideoEncodeCommandBuffer>()->Handle(clock.m_FrameIndex), &encodeBeginInfo);
+  //      GetContext().Get<IFunctions>()->vkCmdBeginVideoCodingKHR(GetContext().Get<IVideoEncodeCommandBuffer>()->Handle(clock.m_FrameIndex), &encodeBeginInfo);
 
-		StdVideoDecodeH265PictureInfo stdPictureInfo = {};
+		//StdVideoDecodeH265PictureInfo stdPictureInfo = {};
 
-		uint32_t offset = 0;
+		//uint32_t offset = 0;
 
-		VkVideoDecodeH265PictureInfoKHR              decodeH265PictureInfo{};
-		decodeH265PictureInfo.sType                = VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PICTURE_INFO_KHR;
-		decodeH265PictureInfo.pStdPictureInfo      = &stdPictureInfo;
-		decodeH265PictureInfo.sliceSegmentCount    = 1;
-		decodeH265PictureInfo.pSliceSegmentOffsets = &offset;
-		decodeH265PictureInfo.pNext                = nullptr;
+		//VkVideoDecodeH265PictureInfoKHR              decodeH265PictureInfo{};
+		//decodeH265PictureInfo.sType                = VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PICTURE_INFO_KHR;
+		//decodeH265PictureInfo.pStdPictureInfo      = &stdPictureInfo;
+		//decodeH265PictureInfo.sliceSegmentCount    = 1;
+		//decodeH265PictureInfo.pSliceSegmentOffsets = &offset;
+		//decodeH265PictureInfo.pNext                = nullptr;
 
-		VkVideoDecodeInfoKHR                         decodeInfo{};
-		decodeInfo.sType                           = VK_STRUCTURE_TYPE_VIDEO_DECODE_INFO_KHR;
-		decodeInfo.pSetupReferenceSlot             = nullptr;
-		decodeInfo.referenceSlotCount              = 0;
-		decodeInfo.pReferenceSlots                 = nullptr;
-		decodeInfo.srcBuffer                       = nullptr;
-		decodeInfo.dstPictureResource              = {};
-		decodeInfo.pNext                           = &decodeH265PictureInfo;
+		//VkVideoDecodeInfoKHR                         decodeInfo{};
+		//decodeInfo.sType                           = VK_STRUCTURE_TYPE_VIDEO_DECODE_INFO_KHR;
+		//decodeInfo.pSetupReferenceSlot             = nullptr;
+		//decodeInfo.referenceSlotCount              = 0;
+		//decodeInfo.pReferenceSlots                 = nullptr;
+		//decodeInfo.srcBuffer                       = nullptr;
+		//decodeInfo.dstPictureResource              = {};
+		//decodeInfo.pNext                           = &decodeH265PictureInfo;
 
-		GetContext().Get<IFunctions>()->vkCmdDecodeVideoKHR(GetContext().Get<IVideoEncodeCommandBuffer>()->Handle(clock.m_FrameIndex), &decodeInfo);
+		//GetContext().Get<IFunctions>()->vkCmdDecodeVideoKHR(GetContext().Get<IVideoEncodeCommandBuffer>()->Handle(clock.m_FrameIndex), &decodeInfo);
 
-		VkVideoEndCodingInfoKHR                      decodeEndInfo{};
-		decodeEndInfo.sType                        = VK_STRUCTURE_TYPE_VIDEO_END_CODING_INFO_KHR;
+		//VkVideoEndCodingInfoKHR                      decodeEndInfo{};
+		//decodeEndInfo.sType                        = VK_STRUCTURE_TYPE_VIDEO_END_CODING_INFO_KHR;
 
-		GetContext().Get<IFunctions>()->vkCmdEndVideoCodingKHR(GetContext().Get<IVideoEncodeCommandBuffer>()->Handle(clock.m_FrameIndex), &decodeEndInfo);*/
-    }
+		//GetContext().Get<IFunctions>()->vkCmdEndVideoCodingKHR(GetContext().Get<IVideoEncodeCommandBuffer>()->Handle(clock.m_FrameIndex), &decodeEndInfo);*/
+  //  }
 
 	void RenderBackend::Wait()
 	{
@@ -293,12 +307,14 @@ namespace PlayGround::Vulkan {
 
 	void RenderBackend::InitSlateModule()
 	{
+		auto pass = std::dynamic_pointer_cast<Render::SlatePass>(m_RenderPasses.back());
+
 		ImGui::CreateContext();
 
 		ImGuiIO& io = ImGui::GetIO();
 
-		io.IniFilename = "Layout.ini";
-		io.LogFilename = nullptr;
+		io.IniFilename  = "Layout.ini";
+		io.LogFilename  = nullptr;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
@@ -312,8 +328,8 @@ namespace PlayGround::Vulkan {
 		init_info.QueueFamily               = m_Context->Get<IPhysicalDevice>()->GetQueueFamilies().graphic.value();
 		init_info.Queue                     = m_Context->Get<IGraphicQueue>()->Handle();
 		init_info.PipelineCache             = VK_NULL_HANDLE;
-		init_info.DescriptorPool            = nullptr;
-		init_info.RenderPass                = nullptr;
+		init_info.DescriptorPool            = m_Context->Get<IDescriptorPool>()->Handle();
+		init_info.RenderPass                = *static_cast<const VkRenderPass*>(pass->GetRenderPass()->GetRHIRenderPass());
 		init_info.Subpass                   = 0;
 		init_info.MinImageCount             = MaxFrameInFlight;
 		init_info.ImageCount                = MaxFrameInFlight;
@@ -324,6 +340,21 @@ namespace PlayGround::Vulkan {
 		ImGui_ImplVulkan_Init(&init_info);
 
 		ImGui_ImplVulkan_CreateFontsTexture();
+	}
+
+	std::any RenderBackend::CreateRHI(RHI::ERHI e)
+	{
+		switch(e)
+		{
+			case RHI::ERHI::RenderPass: return std::dynamic_pointer_cast<RHI::RenderPass::Impl>(CreateSP<RenderPass>(*m_Context));
+			case RHI::ERHI::Descriptor: return std::dynamic_pointer_cast<RHI::Descriptor::Impl>(CreateSP<Descriptor>(*m_Context));
+			case RHI::ERHI::Pipeline:   return std::dynamic_pointer_cast<RHI::Pipeline::Impl>(CreateSP<Pipeline>(*m_Context));
+			case RHI::ERHI::Shader: return std::dynamic_pointer_cast<RHI::Shader::Impl>(CreateSP<Shader>(*m_Context));
+			case RHI::ERHI::RenderTarget: return std::dynamic_pointer_cast<RHI::RenderTarget::Impl>(CreateSP<RenderTarget>(*m_Context));
+			case RHI::ERHI::VertexBuffer: return std::dynamic_pointer_cast<RHI::VertexBuffer::Impl>(CreateSP<VertexBuffer>(*m_Context));
+			case RHI::ERHI::IndexBuffer: return std::dynamic_pointer_cast<RHI::IndexBuffer::Impl>(CreateSP<IndexBuffer>(*m_Context));
+			default: return nullptr;
+		}
 	}
 
 	void RenderBackend::RecreateSwapChain()
