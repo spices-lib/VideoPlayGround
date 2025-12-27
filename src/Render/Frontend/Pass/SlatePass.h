@@ -8,6 +8,7 @@ namespace PlayGround::RHI {
 	class RenderPass;
 	class Pipeline;
 	class Descriptor;
+	class CmdList;
 }
 
 namespace PlayGround::Render {
@@ -28,7 +29,6 @@ namespace PlayGround::Render {
 	private:
 
 		SP<RHI::RenderPass> m_RenderPass;
-		SP<RHI::Descriptor> m_Descriptor;
-		SP<RHI::Pipeline>   m_Pipeline;
+		SP<RHI::CmdList>    m_CmdList;
 	};
 }

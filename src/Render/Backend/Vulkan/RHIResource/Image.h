@@ -22,6 +22,8 @@ namespace PlayGround::Vulkan {
 
 		void SetName(const std::string& name);
 
+		const VkImageView& GetView() const { return m_ImageView.GetHandle(); }
+
 	private:
 
 		Unit::Image m_Image;

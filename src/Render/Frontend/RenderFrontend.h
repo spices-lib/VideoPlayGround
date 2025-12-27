@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Core.h"
 #include "Core/NonCopyable.h"
+#include "Core/Event/Event.h"
 #include "RHI/RHI.h"
 #include <vector>
 #include <any>
@@ -22,7 +23,8 @@ namespace PlayGround {
 
         ~RenderFrontend() override;
 
-        void OnInitialize();
+        virtual void OnInitialize();
+        virtual void OnShutDown();
         virtual void BeginFrame(class Scene* scene) = 0;
         virtual void EndFrame(class Scene* scene) = 0;
         void RenderFrame(class Scene* scene);
@@ -38,7 +40,7 @@ namespace PlayGround {
 
     private:
 
-        void AddDefaultPasses();
+        void ConstructDefaultPasses();
 
         void AddPass(SP<Render::Pass> pass);
 

@@ -12,8 +12,6 @@ namespace PlayGround::Vulkan {
 		Pass() = default;
 		~Pass() override = default;
 
-		void OnRender(Scene* scene) override;
-
 	private:
 
 	};

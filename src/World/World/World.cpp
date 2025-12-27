@@ -1,6 +1,7 @@
 ﻿#include "World.h"
 #include "World/Scene/Scene.h"
 #include "Core/Event/EngineEvent.h"
+#include "Slate/SlateScope.h"
 #include "EditorWorld.h"
 #include "Slate/Slate.h"
 #include <sstream>
@@ -28,9 +29,13 @@ namespace PlayGround {
 
     void World::OnLayout()
     {
+        Slate::SlateScope::BeginScope();
+
         std::for_each(m_Slates.begin(), m_Slates.end(), [](const auto& slate){
             slate->OnTick();
         });
+
+        Slate::SlateScope::EndScope();
     }
 
     void World::OnEvent(Event& e)

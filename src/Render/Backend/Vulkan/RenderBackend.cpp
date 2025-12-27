@@ -19,6 +19,7 @@
 #include "World/Component/ClockComponent.h"
 #include "Render/Backend/Vulkan/RHIResource/VideoSession.h"
 #include "Render/Frontend/Pass/SlatePass.h"
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 #include <backends/imgui_impl_vulkan.h>
 #include <backends/imgui_impl_glfw.h>
@@ -30,88 +31,96 @@
 #include "Render/Backend/Vulkan/RHIResource/RenderTarget.h"
 #include "Render/Backend/Vulkan/RHIResource/VertexBuffer.h"
 #include "Render/Backend/Vulkan/RHIResource/IndexBuffer.h"
+#include "Render/Backend/Vulkan/RHIResource/CmdList.h"
 
 namespace PlayGround::Vulkan {
 
     RenderBackend::RenderBackend(Window* window)
         : RenderFrontend()
 		, m_Window(window)
-    {
-        m_Context = CreateSP<Context>();
+    {}
 
-        m_Context->Registry<IInstance>();
-        m_Context->Registry<IDebugUtilsObject>();
-        m_Context->Registry<ISurface>();
-        m_Context->Registry<IPhysicalDevice>();
-        m_Context->Registry<IDevice>();
+	void RenderBackend::OnInitialize()
+	{
+		m_Context = CreateSP<Context>();
 
-        m_Context->Registry<IMemoryAllocator>();
-        m_Context->Registry<ISwapChain>(static_cast<GLFWwindow*>(window->NativeWindow()), MaxFrameInFlight);
+		m_Context->Registry<IInstance>();
+		m_Context->Registry<IDebugUtilsObject>();
+		m_Context->Registry<ISurface>();
+		m_Context->Registry<IPhysicalDevice>();
+		m_Context->Registry<IDevice>();
 
-        m_Context->Registry<IGraphicImageSemaphore>(MaxFrameInFlight);
-        m_Context->Registry<IGraphicQueueSemaphore>(MaxFrameInFlight);
-        m_Context->Registry<IGraphicFence>(MaxFrameInFlight);
+		m_Context->Registry<IMemoryAllocator>();
+		m_Context->Registry<ISwapChain>(static_cast<GLFWwindow*>(m_Window->NativeWindow()), MaxFrameInFlight);
 
-        m_Context->Registry<IComputeQueueSemaphore>(MaxFrameInFlight);
-        m_Context->Registry<IComputeFence>(MaxFrameInFlight);
+		m_Context->Registry<IGraphicImageSemaphore>(MaxFrameInFlight);
+		m_Context->Registry<IGraphicQueueSemaphore>(MaxFrameInFlight);
+		m_Context->Registry<IGraphicFence>(MaxFrameInFlight);
+
+		m_Context->Registry<IComputeQueueSemaphore>(MaxFrameInFlight);
+		m_Context->Registry<IComputeFence>(MaxFrameInFlight);
 
 		m_Context->Registry<IVideoEncodeQueueSemaphore>(MaxFrameInFlight);
 		m_Context->Registry<IVideoEncodeFence>(MaxFrameInFlight);
 
-        m_Context->Registry<IGraphicCommandPool>(m_Context->Get<IPhysicalDevice>()->GetQueueFamilies().graphic.value());
-        m_Context->Registry<IGraphicCommandBuffer>(m_Context->Get<IGraphicCommandPool>()->Handle(), VK_COMMAND_BUFFER_LEVEL_PRIMARY, MaxFrameInFlight);
+		m_Context->Registry<IGraphicCommandPool>(m_Context->Get<IPhysicalDevice>()->GetQueueFamilies().graphic.value());
+		m_Context->Registry<IGraphicCommandBuffer>(m_Context->Get<IGraphicCommandPool>()->Handle(), VK_COMMAND_BUFFER_LEVEL_PRIMARY, MaxFrameInFlight);
 
-        m_Context->Registry<IComputeCommandPool>(m_Context->Get<IPhysicalDevice>()->GetQueueFamilies().compute.value());
-        m_Context->Registry<IComputeCommandBuffer>(m_Context->Get<IComputeCommandPool>()->Handle(), VK_COMMAND_BUFFER_LEVEL_PRIMARY, MaxFrameInFlight);
+		m_Context->Registry<IComputeCommandPool>(m_Context->Get<IPhysicalDevice>()->GetQueueFamilies().compute.value());
+		m_Context->Registry<IComputeCommandBuffer>(m_Context->Get<IComputeCommandPool>()->Handle(), VK_COMMAND_BUFFER_LEVEL_PRIMARY, MaxFrameInFlight);
 
 		m_Context->Registry<IVideoEncodeCommandPool>(m_Context->Get<IPhysicalDevice>()->GetQueueFamilies().videoEncode.value());
 		m_Context->Registry<IVideoEncodeCommandBuffer>(m_Context->Get<IVideoEncodeCommandPool>()->Handle(), VK_COMMAND_BUFFER_LEVEL_PRIMARY, MaxFrameInFlight);
 
 		m_Context->Registry<IDescriptorPool>();
-    }
 
-    RenderBackend::~RenderBackend()
-    {
+		RenderFrontend::OnInitialize();
+	}
+
+	void RenderBackend::OnShutDown()
+	{
+		RenderFrontend::OnShutDown();
+
 		m_Context->UnRegistry<IDescriptorPool>();
 
 		m_Context->UnRegistry<IVideoEncodeCommandBuffer>();
 		m_Context->UnRegistry<IVideoEncodeCommandPool>();
 
-        m_Context->UnRegistry<IComputeCommandBuffer>();
-        m_Context->UnRegistry<IComputeCommandPool>();
-        
-        m_Context->UnRegistry<IGraphicCommandBuffer>();
-        m_Context->UnRegistry<IGraphicCommandPool>();
-        
+		m_Context->UnRegistry<IComputeCommandBuffer>();
+		m_Context->UnRegistry<IComputeCommandPool>();
+
+		m_Context->UnRegistry<IGraphicCommandBuffer>();
+		m_Context->UnRegistry<IGraphicCommandPool>();
+
 		m_Context->UnRegistry<IVideoEncodeFence>();
 		m_Context->UnRegistry<IVideoEncodeQueueSemaphore>();
 
-        m_Context->UnRegistry<IComputeFence>();
-        m_Context->UnRegistry<IComputeQueueSemaphore>();
+		m_Context->UnRegistry<IComputeFence>();
+		m_Context->UnRegistry<IComputeQueueSemaphore>();
 
-        m_Context->UnRegistry<IGraphicFence>();
-        m_Context->UnRegistry<IGraphicQueueSemaphore>();
-        m_Context->UnRegistry<IGraphicImageSemaphore>();
+		m_Context->UnRegistry<IGraphicFence>();
+		m_Context->UnRegistry<IGraphicQueueSemaphore>();
+		m_Context->UnRegistry<IGraphicImageSemaphore>();
 
-        m_Context->UnRegistry<ISwapChain>();
-        m_Context->UnRegistry<IMemoryAllocator>();
+		m_Context->UnRegistry<ISwapChain>();
+		m_Context->UnRegistry<IMemoryAllocator>();
 
-        m_Context->UnRegistry<IComputeThreadQueue>();
-        m_Context->UnRegistry<IGraphicThreadQueue>();
-        
+		m_Context->UnRegistry<IComputeThreadQueue>();
+		m_Context->UnRegistry<IGraphicThreadQueue>();
+
 		m_Context->UnRegistry<IVideoEncodeQueue>();
-        m_Context->UnRegistry<ITransferQueue>();
-        m_Context->UnRegistry<IComputeQueue>();
-        m_Context->UnRegistry<IPresentQueue>();
-        m_Context->UnRegistry<IGraphicQueue>();
-        
-        m_Context->UnRegistry<IDevice>();
-        m_Context->UnRegistry<IPhysicalDevice>();
-        m_Context->UnRegistry<ISurface>();
-        m_Context->UnRegistry<IDebugUtilsObject>();
-        m_Context->UnRegistry<IInstance>();
-        m_Context->UnRegistry<IFunctions>();
-    }
+		m_Context->UnRegistry<ITransferQueue>();
+		m_Context->UnRegistry<IComputeQueue>();
+		m_Context->UnRegistry<IPresentQueue>();
+		m_Context->UnRegistry<IGraphicQueue>();
+
+		m_Context->UnRegistry<IDevice>();
+		m_Context->UnRegistry<IPhysicalDevice>();
+		m_Context->UnRegistry<ISurface>();
+		m_Context->UnRegistry<IDebugUtilsObject>();
+		m_Context->UnRegistry<IInstance>();
+		m_Context->UnRegistry<IFunctions>();
+	}
 
 	Context& RenderBackend::GetContext()
 	{
@@ -169,7 +178,7 @@ namespace PlayGround::Vulkan {
 
 			VkSemaphore waitSemphores[]          = { m_Context->Get<IGraphicImageSemaphore>()->Handle(clock.m_FrameIndex) };
 			VkSemaphore signalSemaphores[]       = { m_Context->Get<IVideoEncodeQueueSemaphore>()->Handle(clock.m_FrameIndex) };
-			VkPipelineStageFlags waitStages[]    = { VK_PIPELINE_STAGE_NONE };
+			VkPipelineStageFlags waitStages[]    = { VK_PIPELINE_STAGE_ALL_COMMANDS_BIT };
 
 			VkSubmitInfo                           submitInfo{};
 			submitInfo.sType                     = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -329,7 +338,7 @@ namespace PlayGround::Vulkan {
 		init_info.Queue                     = m_Context->Get<IGraphicQueue>()->Handle();
 		init_info.PipelineCache             = VK_NULL_HANDLE;
 		init_info.DescriptorPool            = m_Context->Get<IDescriptorPool>()->Handle();
-		init_info.RenderPass                = *static_cast<const VkRenderPass*>(pass->GetRenderPass()->GetRHIRenderPass());
+		init_info.RenderPass                = pass->GetRenderPass()->GetRHIImpl<RenderPass>()->Handle();
 		init_info.Subpass                   = 0;
 		init_info.MinImageCount             = MaxFrameInFlight;
 		init_info.ImageCount                = MaxFrameInFlight;
@@ -346,13 +355,14 @@ namespace PlayGround::Vulkan {
 	{
 		switch(e)
 		{
-			case RHI::ERHI::RenderPass: return std::dynamic_pointer_cast<RHI::RenderPass::Impl>(CreateSP<RenderPass>(*m_Context));
-			case RHI::ERHI::Descriptor: return std::dynamic_pointer_cast<RHI::Descriptor::Impl>(CreateSP<Descriptor>(*m_Context));
-			case RHI::ERHI::Pipeline:   return std::dynamic_pointer_cast<RHI::Pipeline::Impl>(CreateSP<Pipeline>(*m_Context));
-			case RHI::ERHI::Shader: return std::dynamic_pointer_cast<RHI::Shader::Impl>(CreateSP<Shader>(*m_Context));
+			case RHI::ERHI::RenderPass:   return std::dynamic_pointer_cast<RHI::RenderPass::Impl>  (CreateSP<RenderPass>  (*m_Context));
+			case RHI::ERHI::Descriptor:   return std::dynamic_pointer_cast<RHI::Descriptor::Impl>  (CreateSP<Descriptor>  (*m_Context));
+			case RHI::ERHI::Pipeline:     return std::dynamic_pointer_cast<RHI::Pipeline::Impl>    (CreateSP<Pipeline>    (*m_Context));
+			case RHI::ERHI::Shader:       return std::dynamic_pointer_cast<RHI::Shader::Impl>      (CreateSP<Shader>      (*m_Context));
 			case RHI::ERHI::RenderTarget: return std::dynamic_pointer_cast<RHI::RenderTarget::Impl>(CreateSP<RenderTarget>(*m_Context));
 			case RHI::ERHI::VertexBuffer: return std::dynamic_pointer_cast<RHI::VertexBuffer::Impl>(CreateSP<VertexBuffer>(*m_Context));
-			case RHI::ERHI::IndexBuffer: return std::dynamic_pointer_cast<RHI::IndexBuffer::Impl>(CreateSP<IndexBuffer>(*m_Context));
+			case RHI::ERHI::IndexBuffer:  return std::dynamic_pointer_cast<RHI::IndexBuffer::Impl> (CreateSP<IndexBuffer> (*m_Context));
+			case RHI::ERHI::CmdList:      return std::dynamic_pointer_cast<RHI::CmdList::Impl>     (CreateSP<CmdList>     (*m_Context));
 			default: return nullptr;
 		}
 	}
@@ -361,10 +371,10 @@ namespace PlayGround::Vulkan {
 	{
 		auto glfwWindow = static_cast<GLFWwindow*>(m_Window->NativeWindow());
 
-		GetContext().Get<IGraphicQueue>()->Wait();
-
-		RenderFrontend::RecreateSwapChain();
+		Wait();
 
 		GetContext().Get<ISwapChain>()->ReCreate(glfwWindow, MaxFrameInFlight);
+
+		RenderFrontend::RecreateSwapChain();
 	}
 }

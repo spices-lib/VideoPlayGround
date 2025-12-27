@@ -2,9 +2,4 @@
 
 namespace PlayGround::Vulkan {
 
-	void Pass::OnRender(Scene* scene)
-	{
-
-	}
-
 }

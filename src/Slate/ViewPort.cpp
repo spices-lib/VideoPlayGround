@@ -5,14 +5,14 @@ namespace PlayGround::Slate {
 
 	void ViewPort::OnTick()
 	{
-		ResizeQuery();
-
 		ImGui::SetNextWindowBgAlpha(0.5f);
 
 		bool open;
 		ImGui::Begin(m_SlateName.c_str(), &open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse);
 
-		ImGui::Image(m_TextureID, m_SlateSize);
+		ResizeQuery();
+
+		//ImGui::Image(m_TextureID, m_SlateSize);
 
 		ImGui::End();
 	}

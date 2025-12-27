@@ -12,7 +12,7 @@ namespace PlayGround {
 
     void RHISystem::OnSystemShutDown()
     {
-
+        m_RenderFrontend->OnShutDown();
     }
 
     void RHISystem::Tick()

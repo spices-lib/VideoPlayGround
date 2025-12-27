@@ -58,15 +58,15 @@ namespace PlayGround::Vulkan {
 
 		const VkPhysicalDeviceProperties& GetProperties() { return m_Properties; };
 
-		SwapChainProperty QuerySwapChainProperty(GLFWwindow* window);
+		const SwapChainProperty& GetSwapChainProperty() { return m_SwapChainProperty; }
 
 		VideoSessionProperty QueryVideoSessionProperty(const std::vector<VkVideoProfileInfoKHR>& videoProfiles);
+
+		const SwapChainProperty& QuerySwapChainProperty(GLFWwindow* window);
 
 	private:
 
 		void Create();
-
-	private:
 
 		bool IsExtensionMeetDemand(const VkPhysicalDevice& device);
 
@@ -84,6 +84,7 @@ namespace PlayGround::Vulkan {
 		std::vector<const char*> m_ExtensionProperties;
 		QueueFamilies m_QueueFamilies;
 		VkPhysicalDeviceProperties m_Properties;
+		SwapChainProperty m_SwapChainProperty;
 	};
 
 }

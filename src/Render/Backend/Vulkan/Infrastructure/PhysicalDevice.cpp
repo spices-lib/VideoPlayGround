@@ -217,7 +217,7 @@ namespace PlayGround::Vulkan {
 		return property;
 	}
 
-	SwapChainProperty PhysicalDevice::QuerySwapChainProperty(GLFWwindow* window)
+	const SwapChainProperty& PhysicalDevice::QuerySwapChainProperty(GLFWwindow* window)
 	{
 		auto surface = GetContext().Get<ISurface>()->Handle();
 
@@ -286,7 +286,9 @@ namespace PlayGround::Vulkan {
 			}
 		}
 
-		return property;
+		m_SwapChainProperty = property;
+
+		return m_SwapChainProperty;
 	}
 
 	const std::vector<const char*>& PhysicalDevice::GetExtensionRequirements()

@@ -16,7 +16,11 @@ namespace PlayGround::Vulkan {
 
         RenderBackend(Window* window);
 
-        ~RenderBackend() override;
+        ~RenderBackend() override = default;
+
+        void OnInitialize() override;
+
+        void OnShutDown() override;
 
         void BeginFrame(class Scene* scene) override;
 

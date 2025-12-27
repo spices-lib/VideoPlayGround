@@ -8,11 +8,6 @@ namespace PlayGround::Render {
 		m_Impl = CreatePassImplement();
 	}
 
-	void Pass::OnRender(Scene* scene)
-	{
-		m_Impl->OnRender(scene);
-	}
-
 	SP<Pass::Impl> Pass::CreatePassImplement()
 	{
 		return CreateSP<Vulkan::Pass>();

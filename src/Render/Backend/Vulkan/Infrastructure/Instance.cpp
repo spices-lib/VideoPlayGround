@@ -204,6 +204,7 @@ namespace PlayGround::Vulkan {
 #ifdef PG_DEBUG
 
 		m_LayerProperties.push_back("VK_LAYER_KHRONOS_validation");
+		m_LayerProperties.push_back("VK_LAYER_LUNARG_monitor");
 
 #endif
 

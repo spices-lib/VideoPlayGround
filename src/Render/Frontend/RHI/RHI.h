@@ -14,6 +14,7 @@ namespace PlayGround::RHI {
 		RenderTarget,
 		VertexBuffer,
 		IndexBuffer,
+		CmdList,
 
 		Count
 	};
@@ -55,6 +56,12 @@ namespace PlayGround::RHI {
 		}
 
 		virtual ~RHI() = default;
+
+		template<typename T>
+		SP<T> GetRHIImpl()
+		{
+			return std::dynamic_pointer_cast<T>(m_Impl);
+		}
 
 	protected:
 

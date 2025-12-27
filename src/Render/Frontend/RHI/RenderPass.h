@@ -16,7 +16,6 @@ namespace PlayGround::RHI {
 		virtual ~Impl() = default;
 
 		virtual void AddSwapChainAttachment() = 0;
-		virtual const void* GetRHIRenderPass() = 0;
 		virtual void Build() = 0;
 	};
 
@@ -26,8 +25,6 @@ namespace PlayGround::RHI {
 
 		RenderPass() = default;
 		~RenderPass() override = default;
-
-		const void* GetRHIRenderPass() const { return m_Impl->GetRHIRenderPass(); }
 		
 		void AddSwapChainAttachment() const { m_Impl->AddSwapChainAttachment(); }
 

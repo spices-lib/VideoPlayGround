@@ -22,6 +22,8 @@ namespace PlayGround::Vulkan {
 
 		bool GetNextImage(VkSemaphore semaphore, uint32_t& imageIndex);
 
+		const VkImageView& GetView(uint32_t index) const { return m_SwapChainImage[index]->GetView(); }
+
 		bool Present(VkPresentInfoKHR& info);
 
 		void ReCreate(GLFWwindow* window, uint32_t count);

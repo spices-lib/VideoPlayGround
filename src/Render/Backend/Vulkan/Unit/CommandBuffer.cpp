@@ -19,13 +19,23 @@ namespace PlayGround::Vulkan::Unit {
 		VK_CHECK(vkAllocateCommandBuffers(m_Device, &info, &m_Handle))
 	}
 
-	void CommandBuffer::Begin(const VkCommandBufferBeginInfo& info)
+	void CommandBuffer::Begin(const VkCommandBufferBeginInfo& info) const
 	{
 		VK_CHECK(vkBeginCommandBuffer(m_Handle, &info))
 	}
 
-	void CommandBuffer::End()
+	void CommandBuffer::End() const
 	{
 		VK_CHECK(vkEndCommandBuffer(m_Handle))
+	}
+
+	void CommandBuffer::BeginRenderPass(const VkRenderPassBeginInfo& info, VkSubpassContents content) const
+	{
+		vkCmdBeginRenderPass(m_Handle, &info, content);
+	}
+
+	void CommandBuffer::EndRenderPass() const
+	{
+		vkCmdEndRenderPass(m_Handle);
 	}
 }

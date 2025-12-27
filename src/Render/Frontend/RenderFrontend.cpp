@@ -29,7 +29,12 @@ namespace PlayGround {
 
     void RenderFrontend::OnInitialize()
     {
-        AddDefaultPasses();
+        ConstructDefaultPasses();
+    }
+
+    void RenderFrontend::OnShutDown()
+    {
+        m_RenderPasses = {};
     }
 
     void RenderFrontend::RenderFrame(Scene* scene)
@@ -52,13 +57,17 @@ namespace PlayGround {
             glfwWaitEvents();
         }
 
+        ConstructDefaultPasses();
+
         WindowResizeOverEvent event(width, height);
 
         Event::GetEventCallbackFn()(event);
     }
 
-    void RenderFrontend::AddDefaultPasses()
+    void RenderFrontend::ConstructDefaultPasses()
     {
+        m_RenderPasses = {};
+
         {
             auto bassPass = CreateSP<Render::BasePass>();
 

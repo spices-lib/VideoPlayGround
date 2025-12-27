@@ -18,8 +18,6 @@ namespace PlayGround::Render {
 
 			Impl() = default;
 			virtual ~Impl() = default;
-
-			virtual void OnRender(Scene* scene) = 0;
 		};
 
 	public:
@@ -29,7 +27,7 @@ namespace PlayGround::Render {
 
 		virtual void OnConstruct() = 0;
 
-		virtual void OnRender(Scene* scene);
+		virtual void OnRender(Scene* scene) = 0;
 
 	private:
 
