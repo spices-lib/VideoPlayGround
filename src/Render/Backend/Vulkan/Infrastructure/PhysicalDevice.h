@@ -50,13 +50,13 @@ namespace PlayGround::Vulkan {
 
 		~PhysicalDevice() override = default;
 
-		const VkPhysicalDevice& Handle() { return m_PhysicalDevice.GetHandle(); }
+		const VkPhysicalDevice& Handle() const { return m_PhysicalDevice.GetHandle(); }
 
 		const std::vector<const char*>& GetExtensionRequirements();
 
-		const QueueFamilies& GetQueueFamilies() { return m_QueueFamilies; }
+		const QueueFamilies& GetQueueFamilies() const { return m_QueueFamilies; }
 
-		const VkPhysicalDeviceProperties& GetProperties() { return m_Properties; };
+		const VkPhysicalDeviceProperties& GetProperties() const { return m_Properties; };
 
 		const SwapChainProperty& GetSwapChainProperty() { return m_SwapChainProperty; }
 

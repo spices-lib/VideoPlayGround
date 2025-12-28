@@ -57,22 +57,43 @@ namespace PlayGround::Vulkan {
 		m_Context->Registry<IGraphicQueueSemaphore>(MaxFrameInFlight);
 		m_Context->Registry<IGraphicFence>(MaxFrameInFlight);
 
+		m_Context->Get<IGraphicImageSemaphore>()->SetName("GraphicImageSemaphore");
+		m_Context->Get<IGraphicQueueSemaphore>()->SetName("GraphicQueueSemaphore");
+		m_Context->Get<IGraphicFence>()->SetName("GraphicFence");
+
 		m_Context->Registry<IComputeQueueSemaphore>(MaxFrameInFlight);
 		m_Context->Registry<IComputeFence>(MaxFrameInFlight);
+
+		m_Context->Get<IComputeQueueSemaphore>()->SetName("ComputeQueueSemaphore");
+		m_Context->Get<IComputeFence>()->SetName("ComputeFence");
 
 		m_Context->Registry<IVideoEncodeQueueSemaphore>(MaxFrameInFlight);
 		m_Context->Registry<IVideoEncodeFence>(MaxFrameInFlight);
 
+		m_Context->Get<IVideoEncodeQueueSemaphore>()->SetName("VideoEncodeQueueSemaphore");
+		m_Context->Get<IVideoEncodeFence>()->SetName("VideoEncodeFence");
+
 		m_Context->Registry<IGraphicCommandPool>(m_Context->Get<IPhysicalDevice>()->GetQueueFamilies().graphic.value());
 		m_Context->Registry<IGraphicCommandBuffer>(m_Context->Get<IGraphicCommandPool>()->Handle(), VK_COMMAND_BUFFER_LEVEL_PRIMARY, MaxFrameInFlight);
+
+		m_Context->Get<IGraphicCommandPool>()->SetName("GraphicCommandPool");
+		m_Context->Get<IGraphicCommandBuffer>()->SetName("GraphicCommandBuffer");
 
 		m_Context->Registry<IComputeCommandPool>(m_Context->Get<IPhysicalDevice>()->GetQueueFamilies().compute.value());
 		m_Context->Registry<IComputeCommandBuffer>(m_Context->Get<IComputeCommandPool>()->Handle(), VK_COMMAND_BUFFER_LEVEL_PRIMARY, MaxFrameInFlight);
 
+		m_Context->Get<IComputeCommandPool>()->SetName("ComputeCommandPool");
+		m_Context->Get<IComputeCommandBuffer>()->SetName("ComputeCommandBuffer");
+
 		m_Context->Registry<IVideoEncodeCommandPool>(m_Context->Get<IPhysicalDevice>()->GetQueueFamilies().videoEncode.value());
 		m_Context->Registry<IVideoEncodeCommandBuffer>(m_Context->Get<IVideoEncodeCommandPool>()->Handle(), VK_COMMAND_BUFFER_LEVEL_PRIMARY, MaxFrameInFlight);
 
+		m_Context->Get<IVideoEncodeCommandPool>()->SetName("VideoEncodeCommandPool");
+		m_Context->Get<IVideoEncodeCommandBuffer>()->SetName("VideoEncodeCommandBuffer");
+
 		m_Context->Registry<IDescriptorPool>();
+
+		m_Context->Get<IDescriptorPool>()->SetName("DescriptorPool");
 
 		RenderFrontend::OnInitialize();
 	}
@@ -122,7 +143,7 @@ namespace PlayGround::Vulkan {
 		m_Context->UnRegistry<IFunctions>();
 	}
 
-	Context& RenderBackend::GetContext()
+	Context& RenderBackend::GetContext() const
 	{
 		return *m_Context;
 	}
@@ -147,10 +168,10 @@ namespace PlayGround::Vulkan {
 		}
 
 		{
-			VkCommandBufferBeginInfo     beginInfo{};
-			beginInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			beginInfo.flags            = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-			beginInfo.pInheritanceInfo = nullptr;
+			VkCommandBufferBeginInfo               beginInfo{};
+			beginInfo.sType                      = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			beginInfo.flags                      = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+			beginInfo.pInheritanceInfo           = nullptr;
 
 			m_Context->Get<IVideoEncodeCommandBuffer>()->Begin(beginInfo, clock.m_FrameIndex);
 
@@ -371,7 +392,7 @@ namespace PlayGround::Vulkan {
 	{
 		auto glfwWindow = static_cast<GLFWwindow*>(m_Window->NativeWindow());
 
-		Wait();
+		GetContext().Get<IGraphicQueue>()->Wait();
 
 		GetContext().Get<ISwapChain>()->ReCreate(glfwWindow, MaxFrameInFlight);
 

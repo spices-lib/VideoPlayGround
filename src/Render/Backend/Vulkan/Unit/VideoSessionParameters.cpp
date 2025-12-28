@@ -25,7 +25,7 @@ namespace PlayGround::Vulkan::Unit {
 		VK_CHECK(vkCreateVideoSessionParametersKHR(m_Device, &createInfo, nullptr, &m_Handle));
 	}
 
-	void VideoSessionParameters::UpdateVideoSessionParameters(VkDevice device, const VkVideoSessionParametersUpdateInfoKHR& updateInfo)
+	void VideoSessionParameters::UpdateVideoSessionParameters(VkDevice device, const VkVideoSessionParametersUpdateInfoKHR& updateInfo) const
 	{
 		VK_CHECK(vkUpdateVideoSessionParametersKHR(m_Device, m_Handle, &updateInfo))
 	}

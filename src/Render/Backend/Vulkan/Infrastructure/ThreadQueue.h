@@ -2,7 +2,7 @@
 #include "Core/Core.h"
 #include "Infrastructure.h"
 #include "Render/Backend/Vulkan/Unit/Queue.h"
-#include <queue>
+#include <vector>
 
 namespace PlayGround::Vulkan {
 
@@ -19,9 +19,11 @@ namespace PlayGround::Vulkan {
 
 		void Add(VkQueue handle);
 
+		void SetName(const std::string& name);
+
 	private:
 
-		std::queue<SP<Unit::Queue>> m_Queues;
+		std::vector<SP<Unit::Queue>> m_Queues;
 
 	};
 	

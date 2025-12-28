@@ -4,6 +4,12 @@
 #include "Render/Backend/Vulkan/Unit/Pipeline.h"
 #include "Render/Frontend/RHI/Pipeline.h"
 
+namespace PlayGround::RHI {
+
+	class RenderPass;
+	class Descriptor;
+}
+
 namespace PlayGround::Vulkan {
 
 	class Pipeline : public ContextAccessor, public RHI::Pipeline::Impl
@@ -14,9 +20,9 @@ namespace PlayGround::Vulkan {
 		~Pipeline() override = default;
 
 		void SetDefault() override;
-		void SetRenderPass() override;
-		void SetDescriptor() override;
-		void SetCullMode() override;
+		void SetRenderPass(SP<RHI::RenderPass> renderPass) override;
+		void SetDescriptor(SP<RHI::Descriptor> renderPass) override;
+		void SetCullMode(CullMode mode) override;
 		void SetShaders() override;
 		void Build() override;
 

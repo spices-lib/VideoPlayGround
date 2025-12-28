@@ -12,15 +12,19 @@ namespace PlayGround::Vulkan {
 	public:
 
 		Image(Context& context) : ContextAccessor(context) {}
-		~Image() = default;
+		~Image() override = default;
 
 		void SetImage(VkImage image);
 
-		void CreateImageView(VkDevice device, VkImageViewCreateInfo& info);
+		void CreateImage(const VkImageCreateInfo& info, VkMemoryPropertyFlags properties);
 
-		void CreateSampler(VkDevice device, VkSamplerCreateInfo& info);
+		void CreateImage(const VkImageCreateInfo& info, VmaMemoryUsage usage);
 
-		void SetName(const std::string& name);
+		void CreateImageView(VkImageViewCreateInfo& info);
+
+		void CreateSampler(VkSamplerCreateInfo& info);
+
+		void SetName(const std::string& name) const;
 
 		const VkImageView& GetView() const { return m_ImageView.GetHandle(); }
 

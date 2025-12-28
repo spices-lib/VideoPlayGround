@@ -18,17 +18,19 @@ namespace PlayGround::Vulkan {
 
 		~DebugUtilsObject() override = default;
 
-		void BeginLabel(VkCommandBuffer cmdBuffer, const std::string& caption, glm::vec4 color = glm::vec4(1.0f));
-		void EndLabel(VkCommandBuffer cmdBuffer);
-		void InsertLabel(VkCommandBuffer cmdBuffer, const std::string& caption, glm::vec4 color = glm::vec4(1.0f));
+		void BeginLabel(VkCommandBuffer cmdBuffer, const std::string& caption, glm::vec4 color = glm::vec4(1.0f)) const;
+		void EndLabel(VkCommandBuffer cmdBuffer) const;
+		void InsertLabel(VkCommandBuffer cmdBuffer, const std::string& caption, glm::vec4 color = glm::vec4(1.0f)) const;
 
-		void BeginQueueLabel(VkQueue queue, const std::string& caption, glm::vec4 color = glm::vec4(1.0f));
-		void EndQueueLabel(VkQueue queue);
-		void InsertQueueLabel(VkQueue queue, const std::string& caption, glm::vec4 color = glm::vec4(1.0f));
+		void BeginQueueLabel(VkQueue queue, const std::string& caption, glm::vec4 color = glm::vec4(1.0f)) const;
+		void EndQueueLabel(VkQueue queue) const;
+		void InsertQueueLabel(VkQueue queue, const std::string& caption, glm::vec4 color = glm::vec4(1.0f)) const;
 
 		template<typename Unit>
 		void SetObjectName(const Unit& unit, const std::string& caption);
-		void SetObjectTag(VkObjectType type, uint64_t handle, const std::vector<char*>& captions);
+		
+		template<typename Unit>
+		void SetObjectTag(const Unit& unit, const std::vector<char*>& captions) const;
 
 	private:
 
@@ -66,7 +68,7 @@ namespace PlayGround::Vulkan {
 	{
 		VkDebugUtilsObjectNameInfoEXT       name_info{};
 		name_info.sType                   = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
-		name_info.objectType              = unit.GetEUnit();
+		name_info.objectType              = Unit::GetEUnit();
 		name_info.objectHandle            = reinterpret_cast<uint64_t>(unit.GetHandle());
 		name_info.pObjectName             = caption.c_str();
 
@@ -82,10 +84,24 @@ namespace PlayGround::Vulkan {
 		
 		VkDebugUtilsObjectNameInfoEXT       name_info{};
 		name_info.sType                   = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
-		name_info.objectType              = unit.GetEUnit();
+		name_info.objectType              = Unit::Device::GetEUnit();
 		name_info.objectHandle            = reinterpret_cast<uint64_t>(unit.GetHandle());
 		name_info.pObjectName             = caption.c_str();
 
 		VK_CHECK(GetContext().Get<IFunctions>()->vkSetDebugUtilsObjectNameEXT(unit.GetHandle(), &name_info))
+	}
+	
+	template <typename Unit>
+	inline void DebugUtilsObject::SetObjectTag(const Unit& unit, const std::vector<char*>& captions) const
+	{
+		VkDebugUtilsObjectTagInfoEXT        tag_info{};
+		tag_info.sType                    = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_TAG_INFO_EXT;
+		tag_info.objectType               = Unit::GetEUnit();
+		tag_info.objectHandle             = reinterpret_cast<uint64_t>(unit.GetHandle());
+		tag_info.tagName                  = 0;
+		tag_info.tagSize                  = captions.size();
+		tag_info.pTag                     = captions.data();
+		
+		VK_CHECK(GetContext().Get<IFunctions>()->vkSetDebugUtilsObjectTagEXT(m_Device, &tag_info))
 	}
 }

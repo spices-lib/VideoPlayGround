@@ -10,6 +10,11 @@ namespace PlayGround::Vulkan {
         Create(family);
     }
 
+    void CommandPool::SetName(const std::string& name)
+    {
+        DEBUGUTILS_SETOBJECTNAME(m_CommandPool, name)
+    }
+
     void CommandPool::Create(uint32_t family)
     {
         VkCommandPoolCreateInfo     poolInfo{};
@@ -19,7 +24,7 @@ namespace PlayGround::Vulkan {
 
         m_CommandPool.CreateCommandPool(GetContext().Get<IDevice>()->Handle(), poolInfo);
 
-        DEBUGUTILS_SETOBJECTNAME(m_CommandPool, "CommandPool")
+        SetName("CommandPool");
     }
 
 }

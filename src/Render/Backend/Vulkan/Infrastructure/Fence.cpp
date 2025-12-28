@@ -28,17 +28,25 @@ namespace PlayGround::Vulkan {
         }
     }
 
+    void Fence::SetName(const std::string& name)
+    {
+        std::ranges::for_each(m_Fences, [&](const auto& fence) {
+            DEBUGUTILS_SETOBJECTNAME(*fence, name)
+        });
+    }
+
     void Fence::Wait(uint32_t index)
     {
         auto& fence = m_Fences[index];
 
         fence->WaitFence();
+
         fence->ResetFence();
     }
 
     void Fence::WaitAll()
     {
-        std::for_each(m_Fences.begin(), m_Fences.end(), [](const auto& fence) {
+        std::ranges::for_each(m_Fences, [](const auto& fence) {
             fence->WaitFence();
             fence->ResetFence();
         });

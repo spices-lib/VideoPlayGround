@@ -15,7 +15,7 @@ namespace PlayGround::Vulkan {
 
         virtual ~ContextAccessor() = default;
 
-        constexpr Context& GetContext() { return m_Context; }
+        constexpr Context& GetContext() const { return m_Context; }
         
     private:
 

@@ -339,7 +339,7 @@ namespace PlayGround::Vulkan {
 
 
 		std::vector<VkFormat> formats;
-		std::for_each(supportedFormats.begin(), supportedFormats.end(), [&](const auto& format){
+		std::ranges::for_each(supportedFormats, [&](const auto& format){
 			formats.emplace_back(format.format);
 		});
 

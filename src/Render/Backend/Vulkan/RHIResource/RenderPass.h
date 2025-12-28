@@ -8,6 +8,11 @@
 #include <vector>
 #include <optional>
 
+namespace PlayGround::RHI {
+
+	class RenderTarget;
+}
+
 namespace PlayGround::Vulkan {
 
 	class RenderPass : public ContextAccessor, public RHI::RenderPass::Impl
@@ -18,11 +23,14 @@ namespace PlayGround::Vulkan {
 		~RenderPass() override = default;
 
 		void AddSwapChainAttachment() override;
+
+		void AddColorAttachment(SP<RHI::RenderTarget> renderTarget) override;
+
 		void Build() override;
 
 		const VkRenderPass& Handle() const { return m_RenderPass.GetHandle(); }
 
-		void BeginRenderPass(const Unit::CommandBuffer& commandBuffer, uint32_t frameBufferIndex);
+		void BeginRenderPass(const Unit::CommandBuffer& commandBuffer, uint32_t frameBufferIndex) const;
 
 	private:
 

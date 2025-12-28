@@ -26,6 +26,8 @@ namespace PlayGround::Vulkan {
 
 		void End(uint32_t index = 0) const;
 
+		void SetName(const std::string& name);
+
 	private:
 
 		void Create(VkCommandPool commandPool, VkCommandBufferLevel level, uint32_t count);

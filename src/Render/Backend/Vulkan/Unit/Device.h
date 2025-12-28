@@ -18,8 +18,8 @@ namespace PlayGround::Vulkan::Unit {
 
 		void CreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo* createInfo);
 
-		VkQueue GetDeviceQueue(uint32_t queueFamilyIndex, uint32_t queueIndex);
+		VkQueue GetDeviceQueue(uint32_t queueFamilyIndex, uint32_t queueIndex) const;
 
-		void Wait();
+		void Wait() const;
 	};
 }

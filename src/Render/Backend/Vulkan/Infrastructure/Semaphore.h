@@ -19,7 +19,9 @@ namespace PlayGround::Vulkan {
 
 		~Semaphore() override = default;
 
-		const VkSemaphore& Handle(uint32_t index = 0) { return m_Semaphores[index]->GetHandle(); }
+		const VkSemaphore& Handle(uint32_t index = 0) const { return m_Semaphores[index]->GetHandle(); }
+
+		void SetName(const std::string& name);
 
 	private:
 

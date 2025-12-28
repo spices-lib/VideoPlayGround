@@ -16,7 +16,9 @@ namespace PlayGround::Vulkan {
 
 		~DescriptorPool() override = default;
 
-		const VkDescriptorPool& Handle() { return m_DescriptorPool.GetHandle(); }
+		const VkDescriptorPool& Handle() const { return m_DescriptorPool.GetHandle(); }
+
+		void SetName(const std::string& name) const;
 
 	private:
 

@@ -14,11 +14,11 @@ namespace PlayGround::Vulkan {
 	public:
 
 		VideoSession(Context& context);
-		~VideoSession() = default;
+		~VideoSession() override = default;
 
-		const VkVideoSessionKHR& Handle() { return m_VideoSession.GetHandle(); }
+		const VkVideoSessionKHR& Handle() const { return m_VideoSession.GetHandle(); }
 
-		const VkVideoSessionParametersKHR& Parameters() { return m_VideoSessionParameters.GetHandle(); }
+		const VkVideoSessionParametersKHR& Parameters() const { return m_VideoSessionParameters.GetHandle(); }
 
 		void CreateVideoSession();
 
@@ -29,7 +29,7 @@ namespace PlayGround::Vulkan {
 	private:
 
 		Unit::VideoSession                              m_VideoSession;
-		std::array<VkDeviceMemory, MAX_BOUND_MEMORY>    m_Memorys{};
+		std::array<VkDeviceMemory, MAX_BOUND_MEMORY>    m_Memories{};
 		Unit::VideoSessionParameters                    m_VideoSessionParameters;
 	};
 }

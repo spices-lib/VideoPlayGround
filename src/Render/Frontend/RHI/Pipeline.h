@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/Core.h"
+#include "Resource/Mesh/Mesh.h"
 #include "RHI.h"
 
 namespace PlayGround::RHI {
@@ -15,9 +16,9 @@ namespace PlayGround::RHI {
 		virtual ~Impl() = default;
 
 		virtual void SetDefault() = 0;
-		virtual void SetRenderPass() = 0;
-		virtual void SetDescriptor() = 0;
-		virtual void SetCullMode() = 0;
+		virtual void SetRenderPass(SP<class RenderPass> renderPass) = 0;
+		virtual void SetDescriptor(SP<class Descriptor> descriptor) = 0;
+		virtual void SetCullMode(CullMode mode) = 0;
 		virtual void SetShaders() = 0;
 		virtual void Build() = 0;
 	};
@@ -30,9 +31,9 @@ namespace PlayGround::RHI {
 		~Pipeline() override = default;
 
 		void SetDefault() const { m_Impl->SetDefault(); }
-		void SetRenderPass() const { m_Impl->SetRenderPass(); }
-		void SetDescriptor() const { m_Impl->SetDescriptor(); }
-		void SetCullMode() const { m_Impl->SetCullMode(); }
+		void SetRenderPass(SP<class RenderPass> renderPass) const { m_Impl->SetRenderPass(renderPass); }
+		void SetDescriptor(SP<class Descriptor> descriptor) const { m_Impl->SetDescriptor(descriptor); }
+		void SetCullMode(CullMode mode) const { m_Impl->SetCullMode(mode); }
 		void SetShaders() const { m_Impl->SetShaders(); }
 		void Build() const { m_Impl->Build(); }
 

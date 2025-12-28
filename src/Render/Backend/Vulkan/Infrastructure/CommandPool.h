@@ -19,6 +19,8 @@ namespace PlayGround::Vulkan {
 
 		const VkCommandPool& Handle() { return m_CommandPool.GetHandle(); }
 
+		void SetName(const std::string& name);
+
 	private:
 
 		void Create(uint32_t family);

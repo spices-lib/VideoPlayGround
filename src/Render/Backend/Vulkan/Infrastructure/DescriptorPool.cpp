@@ -10,6 +10,11 @@ namespace PlayGround::Vulkan {
         Create();
     }
 
+    void DescriptorPool::SetName(const std::string& name) const
+    {
+        DEBUGUTILS_SETOBJECTNAME(m_DescriptorPool, name)
+    }
+
     void DescriptorPool::Create()
     {
         std::vector<VkDescriptorPoolSize> poolSizes{};
@@ -63,7 +68,7 @@ namespace PlayGround::Vulkan {
 
         m_DescriptorPool.CreateDescriptorPool(GetContext().Get<IDevice>()->Handle(), createInfo);
 
-        DEBUGUTILS_SETOBJECTNAME(m_DescriptorPool, "DescriptorPool")
+        SetName("DescriptorPool");
     }
 
 }

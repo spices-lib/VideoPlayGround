@@ -1,9 +1,7 @@
 #pragma once
 #include "Core/Core.h"
 #include "Render/Backend/Vulkan/Core.h"
-#include "Render/Backend/Vulkan/Unit/Image.h"
-#include "Render/Backend/Vulkan/Unit/ImageView.h"
-#include "Render/Backend/Vulkan/Unit/Sampler.h"
+#include "Render/Backend/Vulkan/RHIResource/Image.h"
 #include "Render/Frontend/RHI/RenderTarget.h"
 
 namespace PlayGround::Vulkan {
@@ -12,13 +10,15 @@ namespace PlayGround::Vulkan {
 	{
 	public:
 
-		RenderTarget(Context& context) : ContextAccessor(context) {}
+		RenderTarget(Context& context) : ContextAccessor(context), m_Image(context) {}
 		~RenderTarget() = default;
+
+		void CreateRenderTarget(RenderTargetCreateInfo& info) override;
+
+		const VkImageView& GetView() const;
 
 	private:
 
-		Unit::Image m_Image;
-		Unit::ImageView m_ImageView;
-		Unit::Sampler m_ImageSampler;
+		Image m_Image;
 	};
 }

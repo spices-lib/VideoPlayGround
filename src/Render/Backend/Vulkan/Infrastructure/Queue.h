@@ -21,7 +21,9 @@ namespace PlayGround::Vulkan {
 
 		void Init(VkQueue queue);
 
-		const VkQueue& Handle()  { return m_Queue.GetHandle(); }
+		const VkQueue& Handle() const { return m_Queue.GetHandle(); }
+
+		void SetName(const std::string& name) const;
 
 		void Submit(const VkSubmitInfo& info, VkFence fence = VK_NULL_HANDLE);
 

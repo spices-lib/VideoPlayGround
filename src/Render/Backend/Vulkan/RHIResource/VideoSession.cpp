@@ -90,11 +90,11 @@ namespace PlayGround::Vulkan {
             memInfo.memoryTypeIndex                      = memoryTypeIndex;
             memInfo.pNext                                = nullptr;
 
-            VK_CHECK(vkAllocateMemory(GetContext().Get<IDevice>()->Handle(), &memInfo, nullptr, &m_Memorys[i]))
+            VK_CHECK(vkAllocateMemory(GetContext().Get<IDevice>()->Handle(), &memInfo, nullptr, &m_Memories[i]))
 
             VkBindVideoSessionMemoryInfoKHR&               sessionBindMemory = sessionBindMemorys[i];
             sessionBindMemory.sType                      = VK_STRUCTURE_TYPE_BIND_VIDEO_SESSION_MEMORY_INFO_KHR;
-            sessionBindMemory.memory                     = m_Memorys[i];
+            sessionBindMemory.memory                     = m_Memories[i];
             sessionBindMemory.memoryBindIndex            = memoryRequirements[i].memoryBindIndex;
             sessionBindMemory.memoryOffset               = 0;
             sessionBindMemory.memorySize                 = memoryRequirements[i].memoryRequirements.size;

@@ -21,7 +21,7 @@ namespace PlayGround::Vulkan::Unit {
 
 		void CreateVideoSessionParameters(VkDevice device, const VkVideoSessionParametersCreateInfoKHR& createInfo);
 
-		void UpdateVideoSessionParameters(VkDevice device, const VkVideoSessionParametersUpdateInfoKHR& updateInfo);
+		void UpdateVideoSessionParameters(VkDevice device, const VkVideoSessionParametersUpdateInfoKHR& updateInfo) const;
 
 	private:
 

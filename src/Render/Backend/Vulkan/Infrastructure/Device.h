@@ -15,7 +15,7 @@ namespace PlayGround::Vulkan {
 
 		~Device() override = default;
 
-		const VkDevice& Handle() { return m_Device.GetHandle(); }
+		const VkDevice& Handle() const { return m_Device.GetHandle(); }
 
 		void Wait();
 

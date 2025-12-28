@@ -25,7 +25,9 @@ namespace PlayGround::Vulkan {
 		CmdList(Context& context) : ContextAccessor(context), RHI::CmdList::Impl() {}
 		~CmdList() override = default;
 
-		void SetGraphic(PlayGround::Scene* scene) override;
+		void SetGraphicCmdList(PlayGround::Scene* scene) override;
+
+		void SetRenderPass(SP<RHI::RenderPass> renderPass) override;
 
 		void CmdDrawSlate() const override;
 
@@ -33,7 +35,11 @@ namespace PlayGround::Vulkan {
 
 		void CmdEndRenderPass() const override;
 
-		void SetRenderPass(SP<RHI::RenderPass> renderPass) override;
+		void CmdBindDescriptor() const override;
+
+		void CmdBindPipeline() const override;
+
+		void CmdDrawFullScreenTriangle() const override;
 
 	private:
 

@@ -15,7 +15,12 @@ namespace PlayGround::Vulkan {
     {
         m_Queue.SetHandle(queue);
         
-        DEBUGUTILS_SETOBJECTNAME(m_Queue, "Queue")
+        SetName("Queue");
+    }
+
+    void Queue::SetName(const std::string& name) const
+    {
+        DEBUGUTILS_SETOBJECTNAME(m_Queue, name)
     }
 
     void Queue::Submit(const VkSubmitInfo& info, VkFence fence)

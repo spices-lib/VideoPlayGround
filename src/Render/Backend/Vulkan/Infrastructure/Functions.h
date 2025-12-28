@@ -5,7 +5,7 @@
 namespace PlayGround::Vulkan {
 
 #define VK_FUNCTION_POINTER(function)          \
-	PFN_##function function;
+	PFN_##function function = nullptr;
 
 #define EXPLAIN_VK_FUNCTION_POINTER(function)  \
 	function = reinterpret_cast<PFN_##function>(vkGetInstanceProcAddr(instance, #function));  \

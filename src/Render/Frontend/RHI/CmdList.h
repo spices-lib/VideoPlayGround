@@ -19,7 +19,9 @@ namespace PlayGround::RHI {
 		Impl() = default;
 		virtual ~Impl() = default;
 
-		virtual void SetGraphic(PlayGround::Scene* scene) = 0;
+		virtual void SetGraphicCmdList(PlayGround::Scene* scene) = 0;
+
+		virtual void SetRenderPass(SP<class RenderPass> renderPass) = 0;
 
 		virtual void CmdDrawSlate() const = 0;
 
@@ -27,7 +29,11 @@ namespace PlayGround::RHI {
 
 		virtual void CmdEndRenderPass() const = 0;
 
-		virtual void SetRenderPass(SP<class RenderPass> renderPass) = 0;
+		virtual void CmdBindDescriptor() const = 0;
+
+		virtual void CmdBindPipeline() const = 0;
+
+		virtual void CmdDrawFullScreenTriangle() const = 0;
 	};
 
 	class CmdList : public RHICmdList
@@ -37,7 +43,9 @@ namespace PlayGround::RHI {
 		CmdList() = default;
 		~CmdList() override = default;
 
-		void SetGraphic(PlayGround::Scene* scene) { m_Impl->SetGraphic(scene); }
+		void SetGraphicCmdList(PlayGround::Scene* scene) { m_Impl->SetGraphicCmdList(scene); }
+
+		void SetRenderPass(SP<class RenderPass> renderPass) { m_Impl->SetRenderPass(renderPass); }
 
 		void CmdDrawSlate() const { m_Impl->CmdDrawSlate(); }
 
@@ -45,6 +53,10 @@ namespace PlayGround::RHI {
 
 		void CmdEndRenderPass() const { m_Impl->CmdEndRenderPass(); }
 
-		void SetRenderPass(SP<class RenderPass> renderPass) { m_Impl->SetRenderPass(renderPass); }
+		void CmdBindDescriptor() const { m_Impl->CmdBindDescriptor(); }
+
+		void CmdBindPipeline() const { m_Impl->CmdBindPipeline(); }
+
+		void CmdDrawFullScreenTriangle() const { m_Impl->CmdDrawFullScreenTriangle(); }
 	};
 }

@@ -17,9 +17,9 @@ namespace PlayGround::Vulkan::Unit {
 
 		~SwapChain() override;
 
-		void CreateSwapchain(VkDevice device, VkSwapchainCreateInfoKHR& createInfo);
-		std::vector<VkImage> GetSwapchainImages(uint32_t imageCount);
-		VkResult GetNextImage(VkSemaphore semaphore, uint32_t& imageIndex);
+		void CreateSwapchain(VkDevice device, const VkSwapchainCreateInfoKHR& createInfo);
+		std::vector<VkImage> GetSwapchainImages(uint32_t imageCount) const;
+		VkResult GetNextImage(VkSemaphore semaphore, uint32_t& imageIndex) const;
 
 	private:
 

@@ -20,7 +20,7 @@ namespace PlayGround::Vulkan::Unit {
 
 		virtual ~Unit() { ResetHandle(); }
 
-		const VkObjectType& GetEUnit() const { return E; }
+		static const VkObjectType& GetEUnit() { return E; }
 
 		void SetHandle(const Handle& handle) { assert(handle); m_Handle = handle; }
 

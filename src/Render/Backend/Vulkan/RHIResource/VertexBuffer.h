@@ -11,7 +11,7 @@ namespace PlayGround::Vulkan {
 	public:
 
 		VertexBuffer(Context& context) : ContextAccessor(context) {}
-		~VertexBuffer() = default;
+		~VertexBuffer() override = default;
 
 	private:
 

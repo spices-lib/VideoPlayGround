@@ -76,6 +76,9 @@ namespace PlayGround::Vulkan {
         template<typename I>
         I::T* Get();
 
+        template<typename I>
+        bool Has() const;
+
     private:
 
         std::array<SP<Infrastructure>, static_cast<uint8_t>(EInfrastructure::MAX)> m_Infrastructures;
@@ -121,6 +124,14 @@ namespace PlayGround::Vulkan {
         }
 
         return static_cast<I::T*>(m_Infrastructures[position].get());
+    }
+
+    template<typename I>
+    bool Context::Has() const
+    {
+        const auto position = static_cast<uint8_t>(I::E);
+
+        return m_Infrastructures[position] != nullptr;
     }
 
 }

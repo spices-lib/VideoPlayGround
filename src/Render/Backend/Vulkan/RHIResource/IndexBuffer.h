@@ -11,7 +11,7 @@ namespace PlayGround::Vulkan {
 	public:
 
 		IndexBuffer(Context& context) : ContextAccessor(context) {}
-		~IndexBuffer() = default;
+		~IndexBuffer() override = default;
 
 	private:
 

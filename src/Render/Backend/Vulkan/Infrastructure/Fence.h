@@ -18,9 +18,12 @@ namespace PlayGround::Vulkan {
 
 		~Fence() override = default;
 
-		const VkFence& Handle(uint32_t index = 0) { return m_Fences[index]->GetHandle(); }
+		const VkFence& Handle(uint32_t index = 0) const { return m_Fences[index]->GetHandle(); }
+
+		void SetName(const std::string& name);
 
 		void Wait(uint32_t index);
+
 		void WaitAll();
 
 	private:

@@ -13,10 +13,10 @@ namespace PlayGround::Vulkan::Unit {
 	{
 		assert(physicalDevice && createInfo && !m_Handle);
 
-		VK_CHECK(vkCreateDevice(physicalDevice, createInfo, nullptr, &m_Handle));
+		VK_CHECK(vkCreateDevice(physicalDevice, createInfo, nullptr, &m_Handle))
 	}
 
-	VkQueue Device::GetDeviceQueue(uint32_t queueFamilyIndex, uint32_t queueIndex)
+	VkQueue Device::GetDeviceQueue(uint32_t queueFamilyIndex, uint32_t queueIndex) const
 	{
 		VkQueue queue{};
 
@@ -27,8 +27,8 @@ namespace PlayGround::Vulkan::Unit {
 		return queue;
 	}
 
-	void Device::Wait()
+	void Device::Wait() const
 	{
-		VK_CHECK(vkDeviceWaitIdle(m_Handle));
+		VK_CHECK(vkDeviceWaitIdle(m_Handle))
 	}
 }

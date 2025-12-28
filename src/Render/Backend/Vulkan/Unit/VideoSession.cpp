@@ -21,6 +21,6 @@ namespace PlayGround::Vulkan::Unit {
 
 		m_Device = device;
 
-		VK_CHECK(vkCreateVideoSessionKHR(m_Device, &createInfo, nullptr, &m_Handle));
+		VK_CHECK(vkCreateVideoSessionKHR(m_Device, &createInfo, nullptr, &m_Handle))
 	}
 }

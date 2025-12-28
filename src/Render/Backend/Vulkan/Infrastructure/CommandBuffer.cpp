@@ -1,6 +1,7 @@
 #include "CommandBuffer.h"
 #include "Device.h"
 #include "DebugUtilsObject.h"
+#include <algorithm>
 
 namespace PlayGround::Vulkan {
 
@@ -37,5 +38,12 @@ namespace PlayGround::Vulkan {
     void CommandBuffer::End(uint32_t index) const
     {
         m_CommandBuffers[index]->End();
+    }
+
+    void CommandBuffer::SetName(const std::string& name)
+    {
+        std::ranges::for_each(m_CommandBuffers, [&](const auto& commandBuffer) {
+            DEBUGUTILS_SETOBJECTNAME(*commandBuffer, name)
+        });
     }
 }

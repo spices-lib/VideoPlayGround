@@ -1,4 +1,7 @@
 #include "Device.h"
+
+#include <ranges>
+
 #include "PhysicalDevice.h"
 #include "Queue.h"
 #include "ThreadQueue.h"
@@ -36,7 +39,7 @@ namespace PlayGround::Vulkan {
 		for (auto& [family, idItems] : queueFamilies)
 		{
 			uint32_t count = 0;
-			for (auto& [id, queues] : idItems)
+			for (auto& queues : idItems | std::views::values)
 			{
 				count += queues.size();
 			}
@@ -108,10 +111,11 @@ namespace PlayGround::Vulkan {
 		GetContext().Registry<ITransferQueue>   (transfer);
 		GetContext().Registry<IVideoEncodeQueue>(videoEncode);
 
-		/*DEBUGUTILS_SETOBJECTNAME(m_Context.Get<IGraphicQueue>() , "GraphicQueue")
-		DEBUGUTILS_SETOBJECTNAME(m_Context.Get<IPresentQueue>() , "PresentQueue")
-		DEBUGUTILS_SETOBJECTNAME(m_Context.Get<IComputeQueue>() , "ComputeQueue")
-		DEBUGUTILS_SETOBJECTNAME(m_Context.Get<ITransferQueue>(), "TransferQueue")*/
+		GetContext().Get<IGraphicQueue>    ()->SetName("GraphicQueue");
+		GetContext().Get<IPresentQueue>    ()->SetName("PresentQueue");
+		GetContext().Get<IComputeQueue>    ()->SetName("ComputeQueue");
+		GetContext().Get<ITransferQueue>   ()->SetName("TransferQueue");
+		GetContext().Get<IVideoEncodeQueue>()->SetName("VideoEncodeQueue");
 
 		GetContext().Registry<IGraphicThreadQueue>();
 		GetContext().Registry<IComputeThreadQueue>();
@@ -121,6 +125,9 @@ namespace PlayGround::Vulkan {
 			GetContext().Get<IGraphicThreadQueue>()->Add(queueFamilies[queueFaimilies.graphic.value()][0][i + 1]);
 			GetContext().Get<IComputeThreadQueue>()->Add(queueFamilies[queueFaimilies.compute.value()][2][i + 1]);
 		}
+
+		GetContext().Get<IGraphicThreadQueue>()->SetName("GraphicThreadQueue");
+		GetContext().Get<IComputeThreadQueue>()->SetName("ComputeThreadQueue");
     }
 
 }

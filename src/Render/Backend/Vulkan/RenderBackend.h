@@ -38,9 +38,9 @@ namespace PlayGround::Vulkan {
 
     private:
 
-        class Context& GetContext();
+        class Context& GetContext() const;
 
-        SP<class Context> m_Context;
+        SP<Context> m_Context;
 
         Window* m_Window;
     };

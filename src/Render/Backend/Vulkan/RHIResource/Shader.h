@@ -11,7 +11,7 @@ namespace PlayGround::Vulkan {
 	public:
 
 		Shader(Context& context) : ContextAccessor(context) {}
-		~Shader() = default;
+		~Shader() override = default;
 
 	private:
 

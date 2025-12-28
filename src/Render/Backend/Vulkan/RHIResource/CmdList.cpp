@@ -13,7 +13,7 @@
 
 namespace PlayGround::Vulkan {
 
-	void CmdList::SetGraphic(PlayGround::Scene* scene)
+	void CmdList::SetGraphicCmdList(PlayGround::Scene* scene)
 	{
 		m_Scene = scene;
 
@@ -45,6 +45,21 @@ namespace PlayGround::Vulkan {
 	void CmdList::CmdEndRenderPass() const
 	{
 		m_CommandBuffer->EndRenderPass();
+	}
+
+	void CmdList::CmdBindDescriptor() const
+	{
+
+	}
+
+	void CmdList::CmdBindPipeline() const
+	{
+
+	}
+
+	void CmdList::CmdDrawFullScreenTriangle() const
+	{
+
 	}
 
 	void CmdList::SetRenderPass(SP<RHI::RenderPass> renderPass)

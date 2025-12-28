@@ -12,30 +12,11 @@ namespace PlayGround::Render {
 	{
 	public:
 
-		class Impl
-		{
-		public:
-
-			Impl() = default;
-			virtual ~Impl() = default;
-		};
-
-	public:
-
-		Pass();
+		Pass() = default;
 		virtual ~Pass() = default;
 
 		virtual void OnConstruct() = 0;
 
 		virtual void OnRender(Scene* scene) = 0;
-
-	private:
-
-		SP<Impl> CreatePassImplement();
-
-	private:
-	
-		SP<Impl> m_Impl = nullptr;
-
 	};
 }

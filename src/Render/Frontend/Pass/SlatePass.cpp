@@ -17,7 +17,7 @@ namespace PlayGround::Render {
 	{
 		m_CmdList = CreateSP<RHI::CmdList>();
 
-		m_CmdList->SetGraphic(scene);
+		m_CmdList->SetGraphicCmdList(scene);
 
 		m_CmdList->SetRenderPass(m_RenderPass);
 

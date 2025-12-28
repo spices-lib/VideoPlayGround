@@ -2,7 +2,9 @@
 #include "Render/Backend/Vulkan/Infrastructure/DebugUtilsObject.h"
 #include "Render/Backend/Vulkan/Infrastructure/PhysicalDevice.h"
 #include "Render/Backend/Vulkan/Infrastructure/SwapChain.h"
+#include "Render/Backend/Vulkan/RHIResource/RenderTarget.h"
 #include "Render/Backend/Vulkan/Unit/ImageView.h"
+#include "Render/Backend/Vulkan/Converter.h"
 
 namespace PlayGround::Vulkan {
 
@@ -44,6 +46,45 @@ namespace PlayGround::Vulkan {
 		StoreExtent(GetContext().Get<IPhysicalDevice>()->GetSwapChainProperty().surfaceSize);
 	}
 
+	void RenderPass::AddColorAttachment(SP<RHI::RenderTarget> renderTarget)
+	{
+		VkAttachmentDescription                       description{};
+		description.format                          = ToVkFormat(renderTarget->GetFormat());
+		description.samples                         = VK_SAMPLE_COUNT_1_BIT;
+		description.loadOp                          = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		description.storeOp                         = VK_ATTACHMENT_STORE_OP_STORE;
+		description.stencilLoadOp                   = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		description.stencilStoreOp                  = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		description.initialLayout                   = VK_IMAGE_LAYOUT_UNDEFINED;
+		description.finalLayout                     = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		
+		VkClearValue                                  clearValue{};
+		clearValue.color                            = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+		VkPipelineColorBlendAttachmentState           colorBlend{};
+		colorBlend.colorWriteMask                   = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+			                                          VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+		colorBlend.blendEnable                      = VK_FALSE;
+		colorBlend.srcColorBlendFactor              = VK_BLEND_FACTOR_ONE;
+		colorBlend.dstColorBlendFactor              = VK_BLEND_FACTOR_ZERO;
+		colorBlend.colorBlendOp                     = VK_BLEND_OP_ADD;
+		colorBlend.srcAlphaBlendFactor              = VK_BLEND_FACTOR_ONE;
+		colorBlend.dstAlphaBlendFactor              = VK_BLEND_FACTOR_ZERO;
+		colorBlend.alphaBlendOp                     = VK_BLEND_OP_ADD;
+											        
+		VkAttachmentReference                         attachmentRef{};
+		attachmentRef.attachment                    = m_ColorAttachmentReference.size();
+		attachmentRef.layout                        = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+		m_AttachmentDescriptions.emplace_back(description);
+		m_ColorAttachmentReference.emplace_back(attachmentRef);
+		m_ColorBlends.emplace_back(colorBlend);
+		m_ClearValues.emplace_back(clearValue);
+		m_ImageViews.emplace_back(renderTarget->GetRHIImpl<RenderTarget>()->GetView());
+
+		StoreExtent({ renderTarget->GetWidth(), renderTarget->GetHeight() });
+	}
+
 	void RenderPass::Build()
 	{
 		{
@@ -65,6 +106,8 @@ namespace PlayGround::Vulkan {
 			info.pDependencies                          = nullptr;
 		
 			m_RenderPass.CreateRenderPass(GetContext().Get<IDevice>()->Handle(), info);
+
+			DEBUGUTILS_SETOBJECTNAME(m_RenderPass, "RenderPass")
 		}
 
 		const bool swapChianInUsed = m_ImageViews.size() < m_AttachmentDescriptions.size();
@@ -92,10 +135,12 @@ namespace PlayGround::Vulkan {
 			frameBuffer->CreateFrameBuffer(GetContext().Get<IDevice>()->Handle(), info);
 
 			m_FrameBuffers.emplace_back(frameBuffer);
+
+			DEBUGUTILS_SETOBJECTNAME(*frameBuffer, "FrameBuffer")
 		}
 	}
 
-	void RenderPass::BeginRenderPass(const Unit::CommandBuffer& commandBuffer, uint32_t frameBufferIndex)
+	void RenderPass::BeginRenderPass(const Unit::CommandBuffer& commandBuffer, uint32_t frameBufferIndex) const
 	{
 		VkRenderPassBeginInfo                         info{};
 		info.sType                                  = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;

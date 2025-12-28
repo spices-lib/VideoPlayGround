@@ -16,6 +16,9 @@ namespace PlayGround::RHI {
 		virtual ~Impl() = default;
 
 		virtual void AddSwapChainAttachment() = 0;
+
+		virtual void AddColorAttachment(SP<class RenderTarget> renderTarget) = 0;
+
 		virtual void Build() = 0;
 	};
 
@@ -27,6 +30,8 @@ namespace PlayGround::RHI {
 		~RenderPass() override = default;
 		
 		void AddSwapChainAttachment() const { m_Impl->AddSwapChainAttachment(); }
+
+		void AddColorAttachment(SP<class RenderTarget> renderTarget) const { m_Impl->AddColorAttachment(renderTarget); }
 
 		void Build() const { m_Impl->Build(); }
 

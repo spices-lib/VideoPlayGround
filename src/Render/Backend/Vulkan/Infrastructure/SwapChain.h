@@ -18,9 +18,9 @@ namespace PlayGround::Vulkan {
 
 		~SwapChain() override = default;
 
-		const VkSwapchainKHR& Handle() { return m_SwapChain->GetHandle(); }
+		const VkSwapchainKHR& Handle() const { return m_SwapChain->GetHandle(); }
 
-		bool GetNextImage(VkSemaphore semaphore, uint32_t& imageIndex);
+		bool GetNextImage(VkSemaphore semaphore, uint32_t& imageIndex) const;
 
 		const VkImageView& GetView(uint32_t index) const { return m_SwapChainImage[index]->GetView(); }
 

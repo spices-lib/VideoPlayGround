@@ -1,6 +1,7 @@
 #include "Semaphore.h"
 #include "Device.h"
 #include "DebugUtilsObject.h"
+#include <algorithm>
 
 namespace PlayGround::Vulkan {
 
@@ -10,6 +11,13 @@ namespace PlayGround::Vulkan {
         Create(count);
     }
 
+    void Semaphore::SetName(const std::string& name)
+    {
+        std::ranges::for_each(m_Semaphores, [&](const auto& semphore) {
+            DEBUGUTILS_SETOBJECTNAME(*semphore, name)
+        });
+    }
+
     void Semaphore::Create(uint32_t count)
     {
         VkSemaphoreCreateInfo semaphoreInfo {};
@@ -17,12 +25,12 @@ namespace PlayGround::Vulkan {
 
         for (uint32_t i = 0; i < count; ++i)
         {
-            auto semphore = CreateSP<Unit::Semaphore>();
-            semphore->CreateSemaphore(GetContext().Get<IDevice>()->Handle(), semaphoreInfo);
+            auto semaphore = CreateSP<Unit::Semaphore>();
+            semaphore->CreateSemaphore(GetContext().Get<IDevice>()->Handle(), semaphoreInfo);
 
-            m_Semaphores.emplace_back(semphore);
+            m_Semaphores.emplace_back(semaphore);
 
-            DEBUGUTILS_SETOBJECTNAME(*semphore, "Semaphore")
+            DEBUGUTILS_SETOBJECTNAME(*semaphore, "semaphore")
         }
     }
 
