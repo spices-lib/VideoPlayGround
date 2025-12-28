@@ -27,7 +27,7 @@ namespace PlayGround::Vulkan {
 			createInfo.samples                               = VK_SAMPLE_COUNT_1_BIT;
 			createInfo.flags                                 = 0;
 
-			m_Image.CreateImage(createInfo, GetContext().Has<IMemoryAllocator>() ? ToVmaMemoryUsage(info.memoryUsage) : ToVkMemoryPropertyFlags(info.memoryUsage));
+			m_Image.CreateImage(createInfo, ToVkMemoryPropertyFlags(info.memoryUsage));
 		}
 
 		{

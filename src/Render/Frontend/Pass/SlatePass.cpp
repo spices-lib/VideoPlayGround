@@ -1,5 +1,4 @@
 #include "SlatePass.h"
-#include "Render/Frontend/RHI/Descriptor.h"
 #include "Render/Frontend/RHI/Pipeline.h"
 #include "Render/Frontend/RHI/RenderPass.h"
 #include "Render/Frontend/RHI/CmdList.h"

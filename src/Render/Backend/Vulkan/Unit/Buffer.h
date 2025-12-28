@@ -1,6 +1,8 @@
 #pragma once
 #include "Core/Core.h"
 #include "Unit.h"
+#include <vk_mem_alloc.h>
+#include <variant>
 
 namespace PlayGround::Vulkan::Unit {
 
@@ -16,11 +18,24 @@ namespace PlayGround::Vulkan::Unit {
 
 		~Buffer() override;
 
-		void CreateBuffer(VkDevice device, const VkBufferCreateInfo& info);
+		void CreateBuffer(VkPhysicalDevice physicalDevice, VkDevice device, const VkBufferCreateInfo& info, VkMemoryPropertyFlags properties);
+
+		void CreateBuffer(VmaAllocator vma, VkDevice device, const VkBufferCreateInfo& info, VkMemoryPropertyFlags properties);
 
 	private:
 
-		VkDevice         m_Device = VK_NULL_HANDLE;
-		VkDeviceMemory   m_Memory = VK_NULL_HANDLE;
+		struct vkAlloc {
+			VkDevice         device     = VK_NULL_HANDLE;
+			VkDeviceMemory   memory     = VK_NULL_HANDLE;
+			void*            hostMemory = nullptr;
+		};
+
+		struct vmaAlloc {
+			VmaAllocator   vma  = VK_NULL_HANDLE;
+			VmaAllocation  alloc = VK_NULL_HANDLE;
+		};
+
+		std::variant<std::monostate, vkAlloc, vmaAlloc> m_Alloc{ std::monostate{} };
+		VkDeviceAddress  m_Address;
 	};
 }

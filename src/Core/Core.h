@@ -12,7 +12,7 @@ namespace PlayGround {
         {                                                                                                     \
             std::stringstream ss;                                                                             \
             ss << "Assert Failed \n    At File: " << __FILE__ << " \n   At Line: " << __LINE__ << "\n   ";    \
-            CORE_ERROR(ss.str())                                                                      \
+            CORE_ERROR(ss.str())                                                                              \
         }                                                                                                     \
     }                                                                                                         \
 

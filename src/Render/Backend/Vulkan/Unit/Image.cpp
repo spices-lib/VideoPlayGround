@@ -1,4 +1,5 @@
 #include "Image.h"
+#include "Render/Backend/Vulkan/Infrastructure/MemoryAllocator.h"
 
 namespace PlayGround::Vulkan::Unit {
 
@@ -60,17 +61,27 @@ namespace PlayGround::Vulkan::Unit {
 		m_Alloc = alloc;
 	}
 
-	void Image::CreateImage(VmaAllocator vma, const VkImageCreateInfo& info, VmaMemoryUsage usage)
+	void Image::CreateImage(VmaAllocator vma, const VkImageCreateInfo& info, VkMemoryPropertyFlags properties)
 	{
 		assert(vma);
 
 		vmaAlloc alloc{};
 		alloc.vma = vma;
 
-		VmaAllocationCreateInfo        createInfo{};
-		createInfo.usage             = usage;
+		VmaAllocationCreateInfo        allocInfo{};
+		allocInfo.usage              = VMA_MEMORY_USAGE_AUTO;
 
-		VK_CHECK(vmaCreateImage(vma, &info, &createInfo, &m_Handle, &alloc.alloc, nullptr))
+		if (properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+		{
+			allocInfo.flags |= VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+		}
+
+		if (properties & VMA_MEMORY_PROPERTY_DEDICATED_MEMORY_BIT)
+		{
+			allocInfo.flags |= VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+		}
+
+		VK_CHECK(vmaCreateImage(vma, &info, &allocInfo, &m_Handle, &alloc.alloc, nullptr))
 
 		m_Alloc = alloc;
 	}

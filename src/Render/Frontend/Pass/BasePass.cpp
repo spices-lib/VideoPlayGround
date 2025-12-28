@@ -1,7 +1,7 @@
 #include "BasePass.h"
 #include "Render/Frontend/RHI/Pipeline.h"
 #include "Render/Frontend/RHI/RenderPass.h"
-#include "Render/Frontend/RHI/Descriptor.h"
+#include "Render/Frontend/RHI/DescriptorList.h"
 #include "Render/Frontend/RHI/CmdList.h"
 #include "Render/Frontend/RHI/RenderTarget.h"
 #include "Resource/Texture/RenderTarget.h"
@@ -23,16 +23,16 @@ namespace PlayGround::Render {
 		m_RenderPass->AddColorAttachment(m_SceneRT);
 		m_RenderPass->Build();
 		
-		m_Descriptor = CreateSP<RHI::Descriptor>();
-		m_Descriptor->Build();
+		m_DescriptorList = CreateSP<RHI::DescriptorList>();
+		m_DescriptorList->Build();
 
 		m_Pipeline = CreateSP<RHI::Pipeline>();
 		m_Pipeline->SetDefault();
 		m_Pipeline->SetRenderPass(m_RenderPass);
-		m_Pipeline->SetDescriptor(m_Descriptor);
+		m_Pipeline->SetDescriptorList(m_DescriptorList);
 		m_Pipeline->SetCullMode(CullMode::None);
 		m_Pipeline->SetShaders();
-		m_Pipeline->Build();
+		m_Pipeline->BuildGraphicPipeline();
 	}
 
 	void BasePass::OnRender(Scene* scene)

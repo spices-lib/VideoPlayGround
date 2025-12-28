@@ -18,6 +18,8 @@ namespace PlayGround::Vulkan::Unit {
 
 		void AllocateDescriptorSet(VkDevice device, const VkDescriptorSetAllocateInfo& info);
 
+		void UpdateDescriptorSet(const VkWriteDescriptorSet& write);
+
 	private:
 
 		VkDevice             m_Device = VK_NULL_HANDLE;

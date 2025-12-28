@@ -8,7 +8,7 @@ namespace PlayGround::RHI {
 	enum class ERHI : uint8_t
 	{
 		RenderPass = 0,
-		Descriptor,
+		DescriptorList,
 		Pipeline,
 		Shader,
 		RenderTarget,

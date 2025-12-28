@@ -80,4 +80,19 @@ namespace PlayGround::Vulkan {
 		}
 		}
 	}
+
+	VkCullModeFlags ToVkCullModeFlags(CullMode c)
+	{
+		switch (c)
+		{
+		case CullMode::None:    return VK_CULL_MODE_NONE;
+		case CullMode::Front:   return VK_CULL_MODE_FRONT_BIT;
+		case CullMode::Back:    return VK_CULL_MODE_BACK_BIT;
+		default:
+		{
+			CORE_WARN("Unsupported CullMode To VkCullModeFlags.")
+			return VK_CULL_MODE_NONE;
+		}
+		}
+	}
 }

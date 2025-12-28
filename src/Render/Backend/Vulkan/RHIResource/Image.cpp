@@ -15,14 +15,14 @@ namespace PlayGround::Vulkan {
 
 	void Image::CreateImage(const VkImageCreateInfo& info, VkMemoryPropertyFlags properties)
 	{
-		m_Image.CreateImage(GetContext().Get<IPhysicalDevice>()->Handle(), GetContext().Get<IDevice>()->Handle(), info, properties);
-
-		DEBUGUTILS_SETOBJECTNAME(m_Image, "Image")
-	}
-
-	void Image::CreateImage(const VkImageCreateInfo& info, VmaMemoryUsage usage)
-	{
-		m_Image.CreateImage(GetContext().Get<IMemoryAllocator>()->Handle(), info, usage);
+		if (GetContext().Has<IMemoryAllocator>())
+		{
+			m_Image.CreateImage(GetContext().Get<IMemoryAllocator>()->Handle(), info, properties);
+		}
+		else
+		{
+			m_Image.CreateImage(GetContext().Get<IPhysicalDevice>()->Handle(), GetContext().Get<IDevice>()->Handle(), info, properties);
+		}
 
 		DEBUGUTILS_SETOBJECTNAME(m_Image, "Image")
 	}

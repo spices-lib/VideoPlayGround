@@ -32,6 +32,8 @@ namespace PlayGround::Vulkan {
 
 		void BeginRenderPass(const Unit::CommandBuffer& commandBuffer, uint32_t frameBufferIndex) const;
 
+		const std::vector<VkPipelineColorBlendAttachmentState>& GetColorBlends() const { return m_ColorBlends; }
+
 	private:
 
 		void StoreExtent(const VkExtent2D& extent);

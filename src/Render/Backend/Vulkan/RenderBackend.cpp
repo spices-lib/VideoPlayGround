@@ -25,7 +25,7 @@
 #include <backends/imgui_impl_glfw.h>
 #include "Render/Frontend/RHI/RenderPass.h"
 #include "Render/Backend/Vulkan/RHIResource/RenderPass.h"
-#include "Render/Backend/Vulkan/RHIResource/Descriptor.h"
+#include "Render/Backend/Vulkan/RHIResource/DescriptorList.h"
 #include "Render/Backend/Vulkan/RHIResource/Pipeline.h"
 #include "Render/Backend/Vulkan/RHIResource/Shader.h"
 #include "Render/Backend/Vulkan/RHIResource/RenderTarget.h"
@@ -376,14 +376,14 @@ namespace PlayGround::Vulkan {
 	{
 		switch(e)
 		{
-			case RHI::ERHI::RenderPass:   return std::dynamic_pointer_cast<RHI::RenderPass::Impl>  (CreateSP<RenderPass>  (*m_Context));
-			case RHI::ERHI::Descriptor:   return std::dynamic_pointer_cast<RHI::Descriptor::Impl>  (CreateSP<Descriptor>  (*m_Context));
-			case RHI::ERHI::Pipeline:     return std::dynamic_pointer_cast<RHI::Pipeline::Impl>    (CreateSP<Pipeline>    (*m_Context));
-			case RHI::ERHI::Shader:       return std::dynamic_pointer_cast<RHI::Shader::Impl>      (CreateSP<Shader>      (*m_Context));
-			case RHI::ERHI::RenderTarget: return std::dynamic_pointer_cast<RHI::RenderTarget::Impl>(CreateSP<RenderTarget>(*m_Context));
-			case RHI::ERHI::VertexBuffer: return std::dynamic_pointer_cast<RHI::VertexBuffer::Impl>(CreateSP<VertexBuffer>(*m_Context));
-			case RHI::ERHI::IndexBuffer:  return std::dynamic_pointer_cast<RHI::IndexBuffer::Impl> (CreateSP<IndexBuffer> (*m_Context));
-			case RHI::ERHI::CmdList:      return std::dynamic_pointer_cast<RHI::CmdList::Impl>     (CreateSP<CmdList>     (*m_Context));
+			case RHI::ERHI::RenderPass:       return std::dynamic_pointer_cast<RHI::RenderPass::Impl>    (CreateSP<RenderPass>    (*m_Context));
+			case RHI::ERHI::DescriptorList:   return std::dynamic_pointer_cast<RHI::DescriptorList::Impl>(CreateSP<DescriptorList>(*m_Context));
+			case RHI::ERHI::Pipeline:         return std::dynamic_pointer_cast<RHI::Pipeline::Impl>      (CreateSP<Pipeline>      (*m_Context));
+			case RHI::ERHI::Shader:           return std::dynamic_pointer_cast<RHI::Shader::Impl>        (CreateSP<Shader>        (*m_Context));
+			case RHI::ERHI::RenderTarget:     return std::dynamic_pointer_cast<RHI::RenderTarget::Impl>  (CreateSP<RenderTarget>  (*m_Context));
+			case RHI::ERHI::VertexBuffer:     return std::dynamic_pointer_cast<RHI::VertexBuffer::Impl>  (CreateSP<VertexBuffer>  (*m_Context));
+			case RHI::ERHI::IndexBuffer:      return std::dynamic_pointer_cast<RHI::IndexBuffer::Impl>   (CreateSP<IndexBuffer>   (*m_Context));
+			case RHI::ERHI::CmdList:          return std::dynamic_pointer_cast<RHI::CmdList::Impl>       (CreateSP<CmdList>       (*m_Context));
 			default: return nullptr;
 		}
 	}

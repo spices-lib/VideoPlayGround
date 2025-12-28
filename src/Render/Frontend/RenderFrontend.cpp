@@ -2,6 +2,7 @@
 #include "Render/Backend/Vulkan/RenderBackend.h"
 #include "Render/FrontEnd/Pass/BasePass.h"
 #include "Render/FrontEnd/Pass/SlatePass.h"
+#include "Render/FrontEnd/Pass/PrePass.h"
 #include "Window/Window.h"
 #include "Core/Event/WindowEvent.h"
 #include "Render/FrontEnd/Pass/Pass.h"
@@ -67,6 +68,12 @@ namespace PlayGround {
     void RenderFrontend::ConstructDefaultPasses()
     {
         m_RenderPasses = {};
+
+        {
+            auto prePass = CreateSP<Render::PrePass>();
+
+            AddPass(prePass);
+        }
 
         {
             auto bassPass = CreateSP<Render::BasePass>();

@@ -18,8 +18,6 @@ namespace PlayGround::Vulkan {
 
 		void CreateImage(const VkImageCreateInfo& info, VkMemoryPropertyFlags properties);
 
-		void CreateImage(const VkImageCreateInfo& info, VmaMemoryUsage usage);
-
 		void CreateImageView(VkImageViewCreateInfo& info);
 
 		void CreateSampler(VkSamplerCreateInfo& info);

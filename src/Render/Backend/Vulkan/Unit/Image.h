@@ -20,7 +20,7 @@ namespace PlayGround::Vulkan::Unit {
 
 		void CreateImage(VkPhysicalDevice physicalDevice, VkDevice device, const VkImageCreateInfo& info, VkMemoryPropertyFlags properties);
 
-		void CreateImage(VmaAllocator vma, const VkImageCreateInfo& info, VmaMemoryUsage usage);
+		void CreateImage(VmaAllocator vma, const VkImageCreateInfo& info, VkMemoryPropertyFlags properties);
 
 	private:
 

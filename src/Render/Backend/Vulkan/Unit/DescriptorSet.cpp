@@ -18,4 +18,9 @@ namespace PlayGround::Vulkan::Unit {
 
 		VK_CHECK(vkAllocateDescriptorSets(device, &info, &m_Handle))
 	}
+
+	void DescriptorSet::UpdateDescriptorSet(const VkWriteDescriptorSet& write)
+	{
+		vkUpdateDescriptorSets(m_Device, 1, &write, 0, nullptr);
+	}
 }

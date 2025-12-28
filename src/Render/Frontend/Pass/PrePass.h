@@ -4,21 +4,18 @@
 
 namespace PlayGround::RHI {
 
-	class RenderPass;
-	class Pipeline;
 	class DescriptorList;
 	class CmdList;
-	class RenderTarget;
 }
 
-namespace PlayGround::Render { 
+namespace PlayGround::Render {
 
-	class BasePass : public Pass
+	class PrePass : public Pass
 	{
 	public:
 
-		BasePass() : Pass() {}
-		~BasePass() override = default;
+		PrePass() : Pass() {}
+		~PrePass() override = default;
 
 		void OnConstruct() override;
 
@@ -26,11 +23,8 @@ namespace PlayGround::Render {
 
 	private:
 
-		SP<RHI::RenderPass>      m_RenderPass;
 		SP<RHI::DescriptorList>  m_DescriptorList;
-		SP<RHI::Pipeline>        m_Pipeline;
 		SP<RHI::CmdList>         m_CmdList;
-		SP<RHI::RenderTarget>    m_SceneRT;
-		
+
 	};
 }
