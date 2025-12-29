@@ -16,3 +16,11 @@ Vulkan : https://sdk.lunarg.com/sdk/download/1.4.321.1/windows/vulkansdk-windows
 
 启动：
 双击：Startup.bat
+
+阶段目标：
+1.  搭建基础的引擎架构（能跑）[x]
+2.  现代化的渲染架构 [x]
+3.  完整的Vulkan渲染后端 [x]
+4.  GPU音视频解码 []
+5.  动画 []
+6.  FX []
