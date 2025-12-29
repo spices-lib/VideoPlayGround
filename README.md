@@ -21,6 +21,7 @@ Vulkan : https://sdk.lunarg.com/sdk/download/1.4.321.1/windows/vulkansdk-windows
 1.  搭建基础的引擎架构（能跑）√
 2.  现代化的渲染架构 √
 3.  完整的Vulkan渲染后端 √
-4.  GPU音视频解码
-5.  动画
-6.  FX
+4.  Demo场景
+5.  GPU音视频解码
+6.  动画
+7.  FX
