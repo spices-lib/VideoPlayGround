@@ -50,6 +50,7 @@ project "playground"
 		"%{IncludeDir.VulkanMemoryAllocator}",
 		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.entt}",
+		"%{IncludeDir.ffmpeg}",
 	}
 
 	links
@@ -69,7 +70,20 @@ project "playground"
 		}
 
 		links
-		{}
+		{
+			"%{Library.avcodec}",
+			"%{Library.avdevice}",
+			"%{Library.avfilter}",
+			"%{Library.avformat}",
+			"%{Library.avutil}",
+			"%{Library.swresample}",
+			"%{Library.swscale}",
+		}
+
+		debugenvs 
+		{
+			"PATH=%{LibraryDir.ffmpeg_dll}",     
+		}
 
 	filter "configurations:Debug"
 

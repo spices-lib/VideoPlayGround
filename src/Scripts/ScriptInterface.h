@@ -1,7 +1,7 @@
 #pragma once
 #include "Core/Core.h"
 #include "Core/Event/Event.h"
-
+#include "Core/UUID.h"
 #include <filesystem>
 
 namespace PlayGround {
@@ -10,8 +10,7 @@ namespace PlayGround {
     {
     public:
 
-        ScriptInterface() = default;
-        ScriptInterface(const std::filesystem::path& path) : m_ScriptPath(path) {};
+        ScriptInterface() : m_ScriptID(UUID()) {};
         ~ScriptInterface() override = default;
 
         virtual void OnConstruct() {}
@@ -21,10 +20,10 @@ namespace PlayGround {
         virtual void OnDetached() {}
         virtual void OnEvent(Event& e) {}
 
-        std::string GetFileString() const { return m_ScriptPath.generic_string(); }
+        const UUID& GetUUID() const { return m_ScriptID; }
 
     protected:
 
-        std::filesystem::path m_ScriptPath;
+        UUID m_ScriptID;
     };
 }

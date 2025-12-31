@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Core.h"
 #include "Component.h"
+#include "Core/UUID.h"
 #include <map>
 
 namespace PlayGround {
@@ -15,8 +16,6 @@ namespace PlayGround {
 
         void AddScript(const SP<ScriptInterface>& script);
 
-        void RemoveScript(const std::string& name);
-
         ~ScriptComponent() override = default;
 
         void OnTick() const;
@@ -27,6 +26,6 @@ namespace PlayGround {
 
     private:
 
-        std::map<std::string, SP<ScriptInterface>> m_Scripts;
+        std::map<UUID, SP<ScriptInterface>> m_Scripts;
     };
 }

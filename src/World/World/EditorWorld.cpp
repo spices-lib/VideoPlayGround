@@ -4,6 +4,7 @@
 #include "World/Component/TransformComponent.h"
 #include "World/Component/ScriptComponent.h"
 #include "Scripts/NativeScripts/EngineClock.h"
+#include "Scripts/NativeScripts/VideoPlayer.h"
 #include "Slate/ViewPort.h"
 
 namespace PlayGround::Editor {
@@ -25,6 +26,8 @@ namespace PlayGround::Editor {
         auto& scriptComponent = scene->GetComponent<ScriptComponent>(scene->GetRoot());
 
         scriptComponent.AddScript(CreateSP<EngineClock>(scene));
+
+        scriptComponent.AddScript(CreateSP<VideoPlayer>("C:/Users/spices/Desktop/1.mp4"));
 
         RegistrySlate<Slate::ViewPort>("ViewPort");
     }
