@@ -15,3 +15,5 @@ vendor/GLFW/bin
 
 vendor/imgui/bin-int
 vendor/imgui/bin
+
+vendor/ffmpeg/win64
